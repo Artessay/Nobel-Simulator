@@ -18,14 +18,24 @@ MAKE 	= $(CROSS_COMPILE)make
 DEBUG   =
 CFLAGS  = -I$(INC) -I$(INC_LIB) -O3 -Wall -MMD
 
+# directions
+DIRECTIONS = . \
+			 ./model \
+			 ./third_party \
+			 ./utility
+
+
 # files
-C_FILES   = $(wildcard *.c)
-CPP_FILES = $(wildcard *.cpp)
+C_FILES   = $(foreach dirs, $(DIRECTIONS), $(wildcard $(dirs)/*.c))
+CPP_FILES = $(foreach dirs, $(DIRECTIONS), $(wildcard $(dirs)/*.cpp))
+# C_FILES   = $(wildcard *.c)
+# CPP_FILES = $(wildcard *.cpp)
 
 # objects and dependes
 SOURCES = $(C_FILES) $(CPP_FILES)
 OBJECTS = $(patsubst %.c, %.o, $(C_FILES)) $(patsubst %.cpp, %.o, $(CPP_FILES))
 DEPENDS = $(OBJECTS:.o=.d)
+LIBRARIES = model
  
 # link
 lib$(TARGET).a: $(OBJECTS)
@@ -35,10 +45,16 @@ lib$(TARGET).a: $(OBJECTS)
 
 # compile
 %.o: %.c
-	$(CC) $(CFLAGS) $(DEBUG) -c $<
+	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(DEBUG) -c $<
+	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@
 
 # clean
+.PHONY: clean
 clean:
-	del $(OBJECTS) $(DEPENDS)
+	del *.d *.o
+	del model\*.d model\*.o
+	del third_party\*.d third_party\*.o
+	del utility\*.d utility\*.o
+#	$(foreach dirs, $(DIRECTIONS), $(del $(dirs)\*.o))
+#	del $(OBJECTS) $(DEPENDS)
