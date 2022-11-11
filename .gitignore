@@ -1,3 +1,6 @@
+# Visual Studio Code
+.vscode
+
 # Prerequisites
 *.d
 
@@ -14,7 +17,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+#*.dll
 
 # Fortran module files
 *.mod
@@ -23,7 +26,7 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.a
+#*.a
 *.lib
 
 # Executables

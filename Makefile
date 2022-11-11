@@ -23,7 +23,7 @@ TARGET 	= Nobel
 LIBNAME	= cg
 CFLAGS  = -I$(INC) -O2 -Wall -MMD
 LFLAGS	= -L$(LIB)
-LIBRARY	= -lglfw3dll
+LIBRARY	= -lglfw3dll -lassimpdll
 
 .PHONY: all
 all: $(TARGET)
