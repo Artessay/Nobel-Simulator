@@ -9,7 +9,7 @@ class GLObject
         GLObject(unsigned int id);
         GLObject(const GLObject& obj);
         unsigned int getID() const  { return ID; }
-    protected:
+    //protected:
         unsigned int ID;
 };
 

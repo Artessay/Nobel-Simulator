@@ -96,7 +96,6 @@ int core()
     // ------------------------------------
     Shader ourShader("./res/shader.vs", "./res/shader.fs");
 	Shader skyShader("./res/skybox.vs", "./res/skybox.fs");
-	Shader lightShader("./res/light.vs", "./res/light.fs");
 	
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
