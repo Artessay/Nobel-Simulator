@@ -1,5 +1,5 @@
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#ifndef _ILLUMINANT_H_
+#define _ILLUMINANT_H_
 
 #include "Object.h"
 
@@ -7,10 +7,10 @@
  * @brief Light Object
  * 
  */
-class Light: public Object
+class Illuminant: public Object
 {
     public:
-        Light();
+        Illuminant();
 
         virtual void render();
     

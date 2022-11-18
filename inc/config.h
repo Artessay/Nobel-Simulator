@@ -4,6 +4,6 @@
 // settings
 static const unsigned int SCREEN_WIDTH    = 820;
 static const unsigned int SCREEN_HEIGHT   = 800;
-static const char *SCREEN_TITLE           = "Solar System";
+static const char *SCREEN_TITLE           = "Nobel Simulator";
 
 #endif

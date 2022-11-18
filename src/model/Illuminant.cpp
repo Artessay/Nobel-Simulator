@@ -1,6 +1,6 @@
-#include "Light.h"
+#include "Illuminant.h"
 
-Light::Light()
+Illuminant::Illuminant()
 {
     vertices = {
         // positions          // normals           // texture coords
@@ -50,7 +50,7 @@ Light::Light()
     this->bind();
 }
 
-void Light::bind()
+void Illuminant::bind()
 {
     VAO.bind();
     VBO.bind(sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
