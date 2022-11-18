@@ -130,7 +130,6 @@ int core()
 	camera.Yaw = 90.0f;
 	camera.Pitch = -40.0f;
 	camera.ProcessMouseMovement(xoff, yoff);
-	camera.FreeCamera = true;
 
 	
     // render loop
