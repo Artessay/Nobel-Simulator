@@ -3,6 +3,10 @@
 
 #include "Object.h"
 
+/**
+ * @brief Light Object
+ * 
+ */
 class Light: public Object
 {
     public:
