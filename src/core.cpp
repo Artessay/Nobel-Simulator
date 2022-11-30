@@ -5,12 +5,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <stb_image.h>
+
 #include "core.h"
-#include "Ring.h"
+#include "Model.h"
 #include "config.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "Sphere.h"
 #include "CubeMap.h"
 #include "Texture.h"
 #include "callbacks.h"
@@ -19,7 +20,7 @@
 #include <iostream>
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(initial_position);
 
 // key
 static bool keys[1024];
@@ -54,7 +55,7 @@ int core()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+	// glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -77,6 +78,9 @@ int core()
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+    // tell GLFW to capture our mouse
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -85,53 +89,45 @@ int core()
         return -1;
     }
 
-	// configure global opengl state
+    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+    stbi_set_flip_vertically_on_load(false);
+
+    // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // build and compile our shader program
-    // ------------------------------------
-    Shader ourShader("./res/shader.vs", "./res/shader.fs");
-	Shader skyShader("./res/skybox.vs", "./res/skybox.fs");
-	
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    
-
-	// load and create a texture 
+    // build and compile shaders
     // -------------------------
+    Shader ourShader("./res/modelShader.vs", "./res/modelShader.fs");
+
+    Shader skyShader("./res/skybox.vs", "./res/skybox.fs");
+
     std::vector<std::string> skybox
 	{
-		"res/skybox/background_right.png",
-		"res/skybox/background_left.png",
-		"res/skybox/background_top.png",
-		"res/skybox/background_bottom.png",
-		"res/skybox/background_front.png",
-		"res/skybox/background_back.png",
+		"res/textures/skybox/background_right.png",
+		"res/textures/skybox/background_left.png",
+		"res/textures/skybox/background_top.png",
+		"res/textures/skybox/background_bottom.png",
+		"res/textures/skybox/background_front.png",
+		"res/textures/skybox/background_back.png",
 	};
     
     CubeMap sky_texture(skybox);
 
-	Texture texture_sun			("./res/planets/sun.jpg");
-	Texture texture_earth 		("./res/planets/earth.jpg");
-	Texture texture_moon 		("./res/planets/moon.jpg");
-	Texture texture_mars 		("./res/planets/mars.jpg");
+    Texture water_texture("res/textures/blue.jpg");
+    // Texture leaf_texture("res/textures/leaf.jpg");
 
-    Sphere Sun		(100.0f, 180);
-	Sphere Earth	(11.8f);
-	Sphere Mars		( 8.0f);
-	Sphere Moon		( 5.5f);
-	
-	camera.LookAtPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	camera.Position = glm::vec3(0.0f, 250.0f, -450.0f);
-	camera.Yaw = 90.0f;
-	camera.Pitch = -40.0f;
-	camera.ProcessMouseMovement(xoff, yoff);
+    // load models
+    // -----------
+    Model street("./res/models/street/street.obj"); 
+    Model tree("./res/models/Tree/tree.obj");
+    Model machine3("./res/models/machine1/m1.obj");
 
-	
+    Model cadillac("./res/models/Cadillac.obj");
+    
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -142,134 +138,80 @@ int core()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-		// camera state 
-		// --------------------
-
-		// camera speed control
-		if (!camera.FreeCamera)
-		{
-			if (camera.Position.y <  50.0f)
-				camera.MovementSpeed = 50.0f;
-			else if (camera.Position.y >= 50.0f && camera.Position.y < 100.f)
-				camera.MovementSpeed = 100.0f;
-			else if (camera.Position.y >= 100.f && camera.Position.y < 200.0f)
-				camera.MovementSpeed = 200.0f;
-			else if (camera.Position.y >= 200.f && camera.Position.y < 300.0f)
-				camera.MovementSpeed = 300.0f;
-			else if (camera.Position.y >= 300 && camera.Position.y < 400.0f)
-				camera.MovementSpeed = 400.0f;
-			else
-				camera.MovementSpeed = 500.0f;
-		}
-
-		// ban drag rotate when camera is free
         if (camera.FreeCamera)
-		{
-			SceneRotateZ = 0.0f;
-			SceneRotateX = 0.0f;
-		}
-		
-		// cursor display
-		if (camera.FreeCamera)
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		else 
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
+        
         // input
         // -----
         processInput(window);
 
-		// render
+        // render
         // ------
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ourShader.use();
+        // don't forget to enable shader before setting uniforms
+        ourShader.use();
 
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
-		
-		ourShader.use();
-		ourShader.setMat4("model", model);
-		ourShader.setMat4("view", view);
-		ourShader.setMat4("projection", projection);
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
 
-		// SUN
-		texture_sun.use();
-		glm::mat4 model_sun;
-		model_sun = glm::rotate(model_sun, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.f));
-		model_sun = glm::rotate(model_sun, (float)glfwGetTime() * glm::radians(-23.5f) * 0.25f, glm::vec3(0.0f, 0.0f, 1.f));
-		
-		ourShader.setMat4("model", model_sun);
-		Sun.render();
+        // render street
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+            ourShader.setMat4("model", model);
+            street.Draw(ourShader);
+        }
 
-		float x, z;
-		const static float PlanetSpeed = 0.1f;
-		
+		// render machine
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(1.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+			ourShader.setMat4("model", model);
+			machine3.Draw(ourShader);
+		}
 
-		// EARTH 
-		glm::mat4 model_earth;
-		x = sin(glfwGetTime() * PlanetSpeed * 0.55f) * 100.0f * 4.0f *1.3f;
-		z = cos(glfwGetTime() * PlanetSpeed * 0.55f) * 100.0f * 4.0f *1.3f;
-		
-		model_earth = glm::rotate(model_earth, glm::radians(SceneRotateZ), glm::vec3(1.0f, 0.0f, 0.0f));
-		model_earth = glm::rotate(model_earth, glm::radians(SceneRotateX), glm::vec3(0.0f, 0.0f, 1.0f));
-		model_earth = glm::translate(model_earth, glm::vec3(x, 0.0f, z));
-		glm::vec3 EarthPoint = glm::vec3(x, 0.0f, z);
-		
-		model_earth = glm::rotate(model_earth, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.f));
-		model_earth = glm::rotate(model_earth, glm::radians(33.25f), glm::vec3(0.0f, 1.0f, 0.f));
-		model_earth = glm::rotate(model_earth, (float)glfwGetTime() * glm::radians(-33.25f) * 2.0f, glm::vec3(0.0f, 0.0f, 1.f));
-		camera.LookAtPos = glm::vec3(model_earth[3][0], model_earth[3][1], model_earth[3][2]);
-		ourShader.setMat4("model", model_earth);
+        // render tree 1
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(25.0f, -0.5f, 10.0f));
+            model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+            ourShader.setMat4("model", model);
+            tree.Draw(ourShader);
+        }
+        
+        // render tree 2
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(30.0f, -0.5f, 10.0f));
+            model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+            ourShader.setMat4("model", model);
+            tree.Draw(ourShader);
+        }     
 
-		texture_earth.use();
-		Earth.render();  
-		
-		// MOON
-		glm::mat4 model_moon;
-		x = sin(glfwGetTime() * PlanetSpeed * 67.55f) * 100.0f * 0.5f *1.3f;
-		z = cos(glfwGetTime() * PlanetSpeed * 67.55f) * 100.0f * 0.5f *1.3f;
-		
-		model_moon = glm::rotate(model_moon, glm::radians(SceneRotateZ), glm::vec3(1.0f, 0.0f, 0.0f));
-		model_moon = glm::rotate(model_moon, glm::radians(SceneRotateX), glm::vec3(0.0f, 0.0f, 1.0f));
-		model_moon = glm::translate(model_moon, EarthPoint);
-		model_moon = glm::translate(model_moon, glm::vec3(x, 0.0f, z));
-		model_moon = glm::rotate(model_moon, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.f));
-		model_moon = glm::rotate(model_moon, glm::radians(32.4f), glm::vec3(0.0f, 1.0f, 0.f));
-		model_moon = glm::rotate(model_moon, (float)glfwGetTime() * glm::radians(-32.4f) * 3.1f, glm::vec3(0.0f, 0.0f, 1.f));
-		ourShader.setMat4("model", model_moon);
-
-		texture_moon.use();
-		Moon.render();
-
-		// MARS
-		glm::mat4 model_mars;
-		x = sin(glfwGetTime() * PlanetSpeed * 0.35f) * 100.0f * 5.0f *1.3f;
-		z = cos(glfwGetTime() * PlanetSpeed * 0.35f) * 100.0f * 5.0f *1.3f;
-		
-		model_mars = glm::rotate(model_mars, glm::radians(SceneRotateZ), glm::vec3(1.0f, 0.0f, 0.0f));
-		model_mars = glm::rotate(model_mars, glm::radians(SceneRotateX), glm::vec3(0.0f, 0.0f, 1.0f));
-		model_mars = glm::translate(model_mars, glm::vec3(x, 0.0f, z));
-		
-		model_mars = glm::rotate(model_mars, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.f));
-		model_mars = glm::rotate(model_mars, glm::radians(32.4f), glm::vec3(0.0f, 1.0f, 0.f));
-		model_mars = glm::rotate(model_mars, (float)glfwGetTime() * glm::radians(-32.4f) * 2.1f, glm::vec3(0.0f, 0.0f, 1.f));
-		ourShader.setMat4("model", model_mars);
-
-		texture_mars.use();
-		Mars.render();
-
-		
-		// background
-		skyShader.use();
+        // rencer car
+        glm::mat4 cadillac_matrix = glm::mat4(1.0f);
+        cadillac_matrix = glm::translate(cadillac_matrix, glm::vec3(1.0f, 0.4f, -5.0f)); // translate it down so it's at the center of the scene
+        cadillac_matrix = glm::scale(cadillac_matrix, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", cadillac_matrix);
+        water_texture.use();
+        cadillac.Draw(ourShader);
+        
+        
+        skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 		skyShader.setMat4("view", view);
 		skyShader.setMat4("projection", projection);
 
 		sky_texture.render();
- 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -316,9 +258,9 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
 	{
 		camera.FreeCamera = true;
-		camera.Position = glm::vec3(0.0f, 250.0f, -450.0f);
-		camera.Yaw = 90.0f;
-		camera.Pitch = -40.0f;
+		camera.Position = initial_position;
+		camera.Yaw = YAW;
+		camera.Pitch = PITCH;
 		
 		SceneRotateZ = 0.0f;
 		SceneRotateX = 0.0f;
@@ -389,16 +331,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	// camera.ProcessMouseScroll(static_cast<float>(yoffset));
-
-	if (yoffset == 1)
-	{
-		camera.ProcessKeyboard(SCROLL_FORWARD, deltaTime);
-	}
-	else
-	{
-		camera.ProcessKeyboard(SCROLL_BACKWARD, deltaTime);
-	}
+	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 // glfw: whenever the mouse buttons, this callback is called

@@ -1,4 +1,4 @@
-#include <loadModel.h>
+#include "core.h"
 #include <iostream>
 
 int main()
@@ -7,8 +7,8 @@ int main()
     
     try
     {
-        //core();
-        loadModel();
+        core();
+        // loadModel();
     }
     catch(...)
     {

@@ -47,9 +47,9 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
             Position += Right * velocity;
         if (direction == SCROLL_FORWARD)
             if (Position.y > 70.0f)
-                Position += Front * (10000.0f * deltaTime);
+                Position += Front * (1.0f * deltaTime);
         if (direction == SCROLL_BACKWARD)
-            Position -= Front * (15000.0f * deltaTime);
+            Position -= Front * (1.5f * deltaTime);
     }
     else
     {
@@ -67,6 +67,8 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         if (direction == SCROLL_BACKWARD)
             Position -= Front * (15000.0f * deltaTime);
     }
+
+    physicalPositionCheck();
 }
 
 // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -118,4 +120,13 @@ void Camera::updateCameraVectors()
     // Also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+}
+
+// check camera position to meet phisical restrict
+void Camera::physicalPositionCheck()
+{
+    if (Position[1] < 0.5)
+    {
+        Position[1] = 0.5;
+    }
 }
