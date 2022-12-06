@@ -117,7 +117,7 @@ int core()
     
     CubeMap sky_texture(skybox);
 
-    Texture water_texture("res/textures/blue.jpg");
+    // Texture water_texture("res/textures/blue.jpg");
     // Texture leaf_texture("res/textures/leaf.jpg");
 
     // load models
@@ -126,7 +126,7 @@ int core()
     Model tree("./res/models/Tree/tree.obj");
     Model machine3("./res/models/machine1/m1.obj");
 
-    Model cadillac("./res/models/Cadillac.obj");
+    // Model cadillac("./res/models/Cadillac.obj");
     
     // render loop
     // -----------
@@ -197,13 +197,13 @@ int core()
             tree.Draw(ourShader);
         }     
 
-        // rencer car
-        glm::mat4 cadillac_matrix = glm::mat4(1.0f);
-        cadillac_matrix = glm::translate(cadillac_matrix, glm::vec3(1.0f, 0.4f, -5.0f)); // translate it down so it's at the center of the scene
-        cadillac_matrix = glm::scale(cadillac_matrix, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", cadillac_matrix);
-        water_texture.use();
-        cadillac.Draw(ourShader);
+        // // rencer car
+        // glm::mat4 cadillac_matrix = glm::mat4(1.0f);
+        // cadillac_matrix = glm::translate(cadillac_matrix, glm::vec3(1.0f, 0.4f, -5.0f)); // translate it down so it's at the center of the scene
+        // cadillac_matrix = glm::scale(cadillac_matrix, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+        // ourShader.setMat4("model", cadillac_matrix);
+        // water_texture.use();
+        // cadillac.Draw(ourShader);
         
         
         skyShader.use();
