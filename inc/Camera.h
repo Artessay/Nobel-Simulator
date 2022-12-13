@@ -18,10 +18,10 @@ enum Camera_Movement
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 10.0f;
+const float SPEED = 5.0f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
-
+const glm::vec3 initial_position = glm::vec3(0.0f, 0.5f, 3.0f);
 
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -66,6 +66,8 @@ class Camera
 	private:
 		// Calculates the front vector from the Camera's (updated) Eular Angles
 		void updateCameraVectors();
+
+		void physicalPositionCheck();
 };
 
 #endif
