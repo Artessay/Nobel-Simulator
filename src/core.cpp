@@ -11,6 +11,7 @@
 #include "Model.h"
 #include "config.h"
 #include "Shader.h"
+#include "Sphere.h"
 #include "Camera.h"
 #include "CubeMap.h"
 #include "Texture.h"
@@ -40,6 +41,15 @@ static bool dragRotate = false;
 // timing
 static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
+
+// bomb 
+int bomb_number = 0;    // bomb number
+glm::vec3 bombPositions[MAX_BOMBS] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f)
+};
 
 int core()
 {
@@ -104,6 +114,7 @@ int core()
     Shader ourShader("./res/shaders/modelShader.vs", "./res/shaders/modelShader.fs");
     Shader skyShader("./res/shaders/skybox.vs", "./res/shaders/skybox.fs");
     Shader lightingShader("./res/shaders/light.vs", "./res/shaders/light.fs");
+	Shader lightSourceShader("./res/shaders/lightsource.vs", "./res/shaders/lightsource.fs");
 
     std::vector<std::string> skybox
 	{
@@ -117,7 +128,7 @@ int core()
     
     CubeMap sky_texture(skybox);
 
-    // Texture water_texture("res/textures/blue.jpg");
+    Texture water_texture("res/textures/blue.jpg");
     // Texture leaf_texture("res/textures/leaf.jpg");
 
     // load models
@@ -125,17 +136,9 @@ int core()
     Model street("./res/models/street/street.obj"); 
     Model tree("./res/models/Tree/tree.obj");
     Model machine3("./res/models/machine1/m1.obj");
-
     // Model cadillac("./res/models/Cadillac.obj");
 
-    // ============================= bomb  ============================
-    int bomb_number = 1;    // bomb number
-    glm::vec3 bombPositions[MAX_BOMBS] = {
-        glm::vec3( 0.7f,  0.2f,  2.0f),
-        glm::vec3( 2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3( 0.0f,  0.0f, -3.0f)
-    };
+    Sphere bomb(0.25f);
     
     // render loop
     // -----------
@@ -223,6 +226,16 @@ int core()
             street.Draw(ourShader);
         }
 
+        for (int i = 0; i < bomb_number; ++i)
+        {
+            water_texture.use();
+            glm::mat4 model_bomb;
+            model_bomb = glm::translate(model_bomb, bombPositions[i]);
+            
+            lightSourceShader.setMat4("model", model_bomb);
+            bomb.render();
+        }
+
         lightingShader.use();
 		// render machine
 		{
@@ -297,14 +310,14 @@ void processInput(GLFWwindow *window)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
 	static bool flip = true;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && flip == true)
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && flip == true)
 	{
 		camera.FreeCamera = !camera.FreeCamera;
 		firstMouse = true;	// avoid suddent jump when entering
 
 		flip = false;	// only flip state once
 	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && flip == false)
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE && flip == false)
 	{
 		flip = true;
 	}
@@ -320,6 +333,22 @@ void processInput(GLFWwindow *window)
 		SceneRotateX = 0.0f;
 
 		camera.ProcessMouseMovement(xoff, yoff);
+	}
+
+    // put bomb
+    static bool bomb_flip = true;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
+    {
+        if (bomb_number < MAX_BOMBS)
+        {
+            bombPositions[bomb_number++] = camera.Position;
+        }
+        // cout << "Bomb Number: " << bomb_number << endl;
+        bomb_flip = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && bomb_flip == false)
+	{
+		bomb_flip = true;
 	}
 }
 
