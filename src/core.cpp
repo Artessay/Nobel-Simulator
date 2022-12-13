@@ -101,9 +101,9 @@ int core()
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("./res/modelShader.vs", "./res/modelShader.fs");
-
-    Shader skyShader("./res/skybox.vs", "./res/skybox.fs");
+    Shader ourShader("./res/shaders/modelShader.vs", "./res/shaders/modelShader.fs");
+    Shader skyShader("./res/shaders/skybox.vs", "./res/shaders/skybox.fs");
+    Shader lightingShader("./res/shaders/light.vs", "./res/shaders/light.fs");
 
     std::vector<std::string> skybox
 	{
@@ -127,6 +127,15 @@ int core()
     Model machine3("./res/models/machine1/m1.obj");
 
     // Model cadillac("./res/models/Cadillac.obj");
+
+    // ============================= bomb  ============================
+    int bomb_number = 1;    // bomb number
+    glm::vec3 bombPositions[MAX_BOMBS] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
     
     // render loop
     // -----------
@@ -152,16 +161,60 @@ int core()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // don't forget to enable shader before setting uniforms
-        ourShader.use();
-
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
+
+        // don't forget to enable shader before setting uniforms
+        ourShader.use();
         ourShader.setMat4("view", view);
+        ourShader.setMat4("projection", projection);
+
+        lightingShader.use();
+        lightingShader.setMat4("view", view);
+		lightingShader.setMat4("projection", projection);
+
+        // basic config
+        lightingShader.setInt("material.diffuse", 0.5);
+        lightingShader.setInt("material.specular", 0.5);
+        lightingShader.setInt("NR_POINT_BOMBS", bomb_number);
+
+        // light source config
+        
+        // directional light
+        lightingShader.setVec3("dirLight.direction", -200.0f, -200.0f,  0.0f);
+        lightingShader.setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f);
+        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        // point light
+        for (int i = 0; i < bomb_number; ++i)
+        {
+            string attribute = "pointLights";
+            attribute = attribute + "[" + to_string(i) + "].";
+            lightingShader.setVec3(attribute + "position", bombPositions[i]);
+            lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
+            lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
+            lightingShader.setFloat(attribute + "constant", 1.0f);
+            lightingShader.setFloat(attribute + "linear", 0.09f);
+            lightingShader.setFloat(attribute + "quadratic", 0.032f);
+        }
+
+        // spotLight
+        lightingShader.setVec3("spotLight.position", camera.Position);
+        lightingShader.setVec3("spotLight.direction", camera.Front);
+        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("spotLight.constant", 1.0f);
+        lightingShader.setFloat("spotLight.linear", 0.09f);
+        lightingShader.setFloat("spotLight.quadratic", 0.032f);
+        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
 
         // render street
+        ourShader.use();
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
@@ -170,12 +223,13 @@ int core()
             street.Draw(ourShader);
         }
 
+        lightingShader.use();
 		// render machine
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(1.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
 			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-			ourShader.setMat4("model", model);
+			lightingShader.setMat4("model", model);
 			machine3.Draw(ourShader);
 		}
 
@@ -184,7 +238,7 @@ int core()
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(25.0f, -0.5f, 10.0f));
             model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-            ourShader.setMat4("model", model);
+            lightingShader.setMat4("model", model);
             tree.Draw(ourShader);
         }
         
@@ -193,7 +247,7 @@ int core()
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(30.0f, -0.5f, 10.0f));
             model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-            ourShader.setMat4("model", model);
+            lightingShader.setMat4("model", model);
             tree.Draw(ourShader);
         }     
 

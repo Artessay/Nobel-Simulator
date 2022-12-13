@@ -1,13 +1,15 @@
-#version 460 core
+#version 330 core
 out vec4 FragColor;
 
-struct Material {
+struct Material 
+{
     sampler2D diffuse;
     sampler2D specular;
     float shininess;
 }; 
 
-struct DirLight {
+struct DirLight 
+{
     vec3 direction;
 	
     vec3 ambient;
@@ -15,7 +17,8 @@ struct DirLight {
     vec3 specular;
 };
 
-struct PointLight {
+struct PointLight 
+{
     vec3 position;
     
     float constant;
@@ -27,7 +30,8 @@ struct PointLight {
     vec3 specular;
 };
 
-struct SpotLight {
+struct SpotLight 
+{
     vec3 position;
     vec3 direction;
     float cutOff;
@@ -42,15 +46,17 @@ struct SpotLight {
     vec3 specular;       
 };
 
-#define NR_POINT_LIGHTS 4
+// Max bomb number
+#define MAX_BOMBS 10
 
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
+uniform int NR_POINT_BOMBS;
 uniform vec3 viewPos;
 uniform DirLight dirLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLights[MAX_BOMBS];
 uniform SpotLight spotLight;
 uniform Material material;
 
@@ -65,19 +71,18 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
     
-    // == =====================================================
-    // Our lighting is set up in 3 phases: directional, point lights and an optional flashlight
-    // For each phase, a calculate function is defined that calculates the corresponding color
-    // per lamp. In the main() function we take all the calculated colors and sum them up for
-    // this fragment's final color.
-    // == =====================================================
     // phase 1: directional lighting
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    vec3 result;
+    result = CalcDirLight(dirLight, norm, viewDir);
     // phase 2: point lights
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    for(int i = 0; i < NR_POINT_BOMBS; ++i)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
+
+    // vec3 ambient = vec3(0.6, 0.6, 0.6);
+    // result += ambient * vec3(texture(material.diffuse, TexCoords));
+    // result += ambient * vec3(texture(material.specular, TexCoords));
     
     FragColor = vec4(result, 1.0);
 }

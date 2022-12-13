@@ -15,8 +15,8 @@ Sphere::Sphere(const float& r, int sectors)
     {
         float phi = (float)(i * step);       // starting from 0 to pi
 
-        float xy = radius * sinf(phi);       // r * cos(u)
-        float z  = radius * cosf(phi);       // r * sin(u)
+        float xz = radius * sinf(phi);       // r * cos(u)
+        float y  = radius * cosf(phi);       // r * sin(u)
 
         // add (sectors+1) vertices per stack
         // the first and last vertices have same position and normal, but different tex coords
@@ -24,8 +24,8 @@ Sphere::Sphere(const float& r, int sectors)
         {
             float theta = j * step;          // starting from 0 to 2pi
 
-            float x = xy * cosf(theta);      // r * cos(u) * cos(v)
-            float y = xy * sinf(theta);		 // r * cos(u) * sin(v)
+            float x = xz * cosf(theta);      // r * cos(u) * cos(v)
+            float z = xz * sinf(theta);		 // r * cos(u) * sin(v)
 
             // vertex position (x, y, z)
             vertices.push_back(x);
@@ -83,8 +83,11 @@ void Sphere::bind()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // EBO will also unbind after VBO unbind
     VBO.unbind();
