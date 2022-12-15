@@ -44,12 +44,7 @@ static float lastFrame = 0.0f;	// time of last frame
 
 // bomb 
 int bomb_number = 0;    // bomb number
-glm::vec3 bombPositions[MAX_BOMBS] = {
-    glm::vec3( 0.7f,  0.2f,  2.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f)
-};
+glm::vec3 bombPositions[MAX_BOMBS];
 
 int core()
 {
