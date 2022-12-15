@@ -1,7 +1,6 @@
 #ifndef _BOMB_H_
 #define _BOMB_H_
 
-#include "config.h"
 #include "Shader.h"
 #include "Sphere.h"
 
