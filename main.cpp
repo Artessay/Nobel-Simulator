@@ -8,7 +8,6 @@ int main()
     try
     {
         core();
-        // loadModel();
     }
     catch(...)
     {

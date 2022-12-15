@@ -8,6 +8,7 @@
 #include <stb_image.h>
 
 #include "core.h"
+#include "Bomb.h"
 #include "Model.h"
 #include "config.h"
 #include "Shader.h"
@@ -43,8 +44,8 @@ static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
 
 // bomb 
-int bomb_number = 0;    // bomb number
-glm::vec3 bombPositions[MAX_BOMBS];
+
+
 
 int core()
 {
@@ -133,7 +134,7 @@ int core()
     Model machine3("./res/models/machine1/m1.obj");
     // Model cadillac("./res/models/Cadillac.obj");
 
-    Sphere bomb(0.25f);
+    
     
     // render loop
     // -----------
@@ -175,7 +176,7 @@ int core()
         // basic config
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
-        lightingShader.setInt("NR_POINT_BOMBS", bomb_number);
+        lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
 
         // light source config
         
@@ -186,11 +187,11 @@ int core()
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light
-        for (int i = 0; i < bomb_number; ++i)
+        for (int i = 0; i < Bomb::getBombNumber(); ++i)
         {
             string attribute = "pointLights";
             attribute = attribute + "[" + to_string(i) + "].";
-            lightingShader.setVec3(attribute + "position", bombPositions[i]);
+            lightingShader.setVec3(attribute + "position", Bomb::getBombPosition(i));
             lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
             lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
             lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
@@ -221,15 +222,9 @@ int core()
             street.Draw(ourShader);
         }
 
-        for (int i = 0; i < bomb_number; ++i)
-        {
-            water_texture.use();
-            glm::mat4 model_bomb;
-            model_bomb = glm::translate(model_bomb, bombPositions[i]);
-            
-            lightSourceShader.setMat4("model", model_bomb);
-            bomb.render();
-        }
+        water_texture.use();
+        lightSourceShader.use();
+        Bomb::draw(lightSourceShader);
 
         lightingShader.use();
 		// render machine
@@ -240,6 +235,13 @@ int core()
 			lightingShader.setMat4("model", model);
 			machine3.Draw(ourShader);
 		}
+
+        // render cylinder
+        {
+            glm::mat4 model_cylinder = glm::mat4(1.0f);
+            lightingShader.setMat4("model", model_cylinder);
+            
+        }
 
         // render tree 1
         {
@@ -334,10 +336,7 @@ void processInput(GLFWwindow *window)
     static bool bomb_flip = true;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
     {
-        if (bomb_number < MAX_BOMBS)
-        {
-            bombPositions[bomb_number++] = camera.Position;
-        }
+        Bomb::placeBomb(camera.Position, camera.Ahead);
         // cout << "Bomb Number: " << bomb_number << endl;
         bomb_flip = false;
     }
