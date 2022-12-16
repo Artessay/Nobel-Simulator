@@ -8,6 +8,7 @@
 #include <stb_image.h>
 
 #include "core.h"
+#include "Bomb.h"
 #include "Model.h"
 #include "config.h"
 #include "Shader.h"
@@ -45,13 +46,8 @@ static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
 
 // bomb 
-int bomb_number = 0;    // bomb number
-glm::vec3 bombPositions[MAX_BOMBS] = {
-    glm::vec3( 0.7f,  0.2f,  2.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f)
-};
+
+
 
 int core()
 {
@@ -152,7 +148,6 @@ int core()
 
     Cylinder cylinder(2.0f, 1.0f);
 
-    Sphere bomb(0.25f);
     
     // render loop
     // -----------
@@ -191,10 +186,16 @@ int core()
         lightingShader.setMat4("view", view);
 		lightingShader.setMat4("projection", projection);
 
+        lightSourceShader.use();
+        lightSourceShader.setMat4("view", view);
+        lightSourceShader.setMat4("projection", projection);
+
         // basic config
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
-        lightingShader.setInt("NR_POINT_BOMBS", bomb_number);
+        // @todo
+        lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
+        // lightingShader.setInt("NR_POINT_BOMBS", 0);
 
         // light source config
         
@@ -205,17 +206,25 @@ int core()
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light
-        for (int i = 0; i < bomb_number; ++i)
+        set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
+        for (int i = 0; i < Bomb::getBombNumber(); ++i)
         {
+            if (*it == NULL)
+            {
+                cout << "Bomb Program Error" << endl;
+                continue;
+            }
             string attribute = "pointLights";
             attribute = attribute + "[" + to_string(i) + "].";
-            lightingShader.setVec3(attribute + "position", bombPositions[i]);
+            lightingShader.setVec3(attribute + "position", (*it)->getPosition());
             lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
             lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
             lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
             lightingShader.setFloat(attribute + "constant", 1.0f);
             lightingShader.setFloat(attribute + "linear", 0.09f);
             lightingShader.setFloat(attribute + "quadratic", 0.032f);
+
+            ++it;
         }
 
         // spotLight
@@ -237,17 +246,8 @@ int core()
             model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
             ourShader.setMat4("model", model);
+            // lightingShader.setMat4("model", model);
             street.Draw(ourShader);
-        }
-
-        for (int i = 0; i < bomb_number; ++i)
-        {
-            water_texture.use();
-            glm::mat4 model_bomb;
-            model_bomb = glm::translate(model_bomb, bombPositions[i]);
-            
-            lightSourceShader.setMat4("model", model_bomb);
-            bomb.render();
         }
 
         lightingShader.use();
@@ -304,6 +304,10 @@ int core()
         // water_texture.use();
         // cadillac.Draw(ourShader);
         
+
+        water_texture.use();
+        lightSourceShader.use();
+        Bomb::draw(lightSourceShader);
         
         skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -371,10 +375,7 @@ void processInput(GLFWwindow *window)
     static bool bomb_flip = true;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
     {
-        if (bomb_number < MAX_BOMBS)
-        {
-            bombPositions[bomb_number++] = camera.Position;
-        }
+        Bomb::placeBomb(camera.Position, camera.Ahead);
         // cout << "Bomb Number: " << bomb_number << endl;
         bomb_flip = false;
     }
