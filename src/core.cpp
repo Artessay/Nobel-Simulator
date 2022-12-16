@@ -173,12 +173,16 @@ int core()
         lightingShader.setMat4("view", view);
 		lightingShader.setMat4("projection", projection);
 
+        lightSourceShader.use();
+        lightSourceShader.setMat4("view", view);
+        lightSourceShader.setMat4("projection", projection);
+
         // basic config
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
         // @todo
-        // lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
-        lightingShader.setInt("NR_POINT_BOMBS", 0);
+        lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
+        // lightingShader.setInt("NR_POINT_BOMBS", 0);
 
         // light source config
         
@@ -189,22 +193,26 @@ int core()
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light
-        // set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
-        // for (int i = 0; i < Bomb::getBombNumber(); ++i)
-        // {
-        //     string attribute = "pointLights";
-        //     attribute = attribute + "[" + to_string(i) + "].";
-        //     lightingShader.setVec3(attribute + "position", (glm::vec3(0)));
-        //     // lightingShader.setVec3(attribute + "position", (*it)->getPosition());
-        //     lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
-        //     lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
-        //     lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
-        //     lightingShader.setFloat(attribute + "constant", 1.0f);
-        //     lightingShader.setFloat(attribute + "linear", 0.09f);
-        //     lightingShader.setFloat(attribute + "quadratic", 0.032f);
+        set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
+        for (int i = 0; i < Bomb::getBombNumber(); ++i)
+        {
+            if (*it == NULL)
+            {
+                cout << "Bomb Program Error" << endl;
+                continue;
+            }
+            string attribute = "pointLights";
+            attribute = attribute + "[" + to_string(i) + "].";
+            lightingShader.setVec3(attribute + "position", (*it)->getPosition());
+            lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
+            lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
+            lightingShader.setFloat(attribute + "constant", 1.0f);
+            lightingShader.setFloat(attribute + "linear", 0.09f);
+            lightingShader.setFloat(attribute + "quadratic", 0.032f);
 
-        //     ++it;
-        // }
+            ++it;
+        }
 
         // spotLight
         lightingShader.setVec3("spotLight.position", camera.Position);
@@ -225,12 +233,9 @@ int core()
             model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
             ourShader.setMat4("model", model);
+            // lightingShader.setMat4("model", model);
             street.Draw(ourShader);
         }
-
-        // water_texture.use();
-        // lightSourceShader.use();
-        // Bomb::draw(lightSourceShader);
 
         lightingShader.use();
 		// render machine
@@ -243,11 +248,11 @@ int core()
 		}
 
         // render cylinder
-        {
-            glm::mat4 model_cylinder = glm::mat4(1.0f);
-            lightingShader.setMat4("model", model_cylinder);
+        // {
+        //     glm::mat4 model_cylinder = glm::mat4(1.0f);
+        //     lightingShader.setMat4("model", model_cylinder);
             
-        }
+        // }
 
         // render tree 1
         {
@@ -275,6 +280,10 @@ int core()
         // water_texture.use();
         // cadillac.Draw(ourShader);
         
+
+        water_texture.use();
+        lightSourceShader.use();
+        Bomb::draw(lightSourceShader);
         
         skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -339,17 +348,17 @@ void processInput(GLFWwindow *window)
 	}
 
     // put bomb
-    // static bool bomb_flip = true;
-    // if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
-    // {
-    //     Bomb::placeBomb(camera.Position, camera.Ahead);
-    //     // cout << "Bomb Number: " << bomb_number << endl;
-    //     bomb_flip = false;
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && bomb_flip == false)
-	// {
-	// 	bomb_flip = true;
-	// }
+    static bool bomb_flip = true;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
+    {
+        Bomb::placeBomb(camera.Position, camera.Ahead);
+        // cout << "Bomb Number: " << bomb_number << endl;
+        bomb_flip = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && bomb_flip == false)
+	{
+		bomb_flip = true;
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

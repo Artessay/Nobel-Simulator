@@ -12,31 +12,30 @@
 class Bomb
 {
     public:
+
+        glm::vec3 getPosition() const { return position; }
+
+        void explode();
+
+        
         static std::set<Bomb*> bombSet;
 
         static int getBombNumber();
-        static glm::vec3 getBombPosition(int index);
         
         static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront);
         
         static void draw(Shader& shader);
-
-        glm::vec3 getPosition() const
-        {
-            return position;
-        }
     
     protected:
         const static float bomb_velocity;
-        const static float bomb_initial_height;
-        static Sphere shape;
 
         Bomb(glm::vec3 bombPosition, glm::vec3 bombFront);
 
         static int bomb_number;    // bomb number
-        static glm::vec3 bombPositions[MAX_BOMBS];
+        // static glm::vec3 bombPositions[MAX_BOMBS];
 
         float start_time;
+        glm::vec3 start_position;
         glm::vec3 position;
         glm::vec3 front;
 
