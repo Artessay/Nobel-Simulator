@@ -45,5 +45,5 @@ run:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(DEPS) $(BIN)\$(TARGET).exe $(LIB)\lib$(LIBNAME).a
+	del $(OBJS) $(DEPS) $(BIN)\$(TARGET).exe $(LIB)\lib$(LIBNAME).a
 	$(MAKE) clean -C $(SRC)

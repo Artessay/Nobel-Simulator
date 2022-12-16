@@ -52,9 +52,9 @@ lib$(TARGET).a: $(OBJECTS)
 # clean
 .PHONY: clean
 clean:
-	rm -f *.d *.o
-	rm -f model\*.d model\*.o
-	rm -f third_party\*.d third_party\*.o
-	rm -f utility\*.d utility\*.o
+	del *.d *.o
+	del model\*.d model\*.o
+	del third_party\*.d third_party\*.o
+	del utility\*.d utility\*.o
 #	$(foreach dirs, $(DIRECTIONS), $(del $(dirs)\*.o))
 #	del $(OBJECTS) $(DEPENDS)

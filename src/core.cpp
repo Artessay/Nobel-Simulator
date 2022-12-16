@@ -176,7 +176,9 @@ int core()
         // basic config
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
-        lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
+        // @todo
+        // lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
+        lightingShader.setInt("NR_POINT_BOMBS", 0);
 
         // light source config
         
@@ -337,17 +339,17 @@ void processInput(GLFWwindow *window)
 	}
 
     // put bomb
-    static bool bomb_flip = true;
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
-    {
-        Bomb::placeBomb(camera.Position, camera.Ahead);
-        // cout << "Bomb Number: " << bomb_number << endl;
-        bomb_flip = false;
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && bomb_flip == false)
-	{
-		bomb_flip = true;
-	}
+    // static bool bomb_flip = true;
+    // if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
+    // {
+    //     Bomb::placeBomb(camera.Position, camera.Ahead);
+    //     // cout << "Bomb Number: " << bomb_number << endl;
+    //     bomb_flip = false;
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && bomb_flip == false)
+	// {
+	// 	bomb_flip = true;
+	// }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
