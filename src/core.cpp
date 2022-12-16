@@ -13,6 +13,8 @@
 #include "config.h"
 #include "Shader.h"
 #include "Sphere.h"
+#include "Cylinder.h"
+#include "BezierSurface.h"
 #include "Camera.h"
 #include "CubeMap.h"
 #include "Texture.h"
@@ -124,6 +126,16 @@ int core()
     
     CubeMap sky_texture(skybox);
 
+    //Bezier Surface
+    float controlPoints[] = {
+        -1.5, -1.5,  0.0,   -0.5, -1.5,  0.0,   0.5, -1.5,  0.0,   1.2, -1.5,  0.0,
+        -1.5, -0.5,  0.0,   -0.0, -0.5,  1.0,   1.0, -0.5,  2.5,   1.2, -0.5,  0.0,
+        -1.5,  0.5,  0.0,   -0.0,  0.5,  1.0,   1.0,  0.5,  2.5,   1.2,  0.5,  0.0, 
+        -1.5,  1.5,  0.0,   -0.5,  1.5,  0.0,   0.5,  1.5,  0.0,   1.2,  1.5,  0.0
+    };
+    BezierSurface bezierS(controlPoints);
+    
+
     Texture water_texture("res/textures/blue.jpg");
     // Texture leaf_texture("res/textures/leaf.jpg");
 
@@ -134,7 +146,8 @@ int core()
     Model machine3("./res/models/machine1/m1.obj");
     // Model cadillac("./res/models/Cadillac.obj");
 
-    
+    Cylinder cylinder(2.0f, 1.0f);
+
     
     // render loop
     // -----------
@@ -248,11 +261,22 @@ int core()
 		}
 
         // render cylinder
-        // {
-        //     glm::mat4 model_cylinder = glm::mat4(1.0f);
-        //     lightingShader.setMat4("model", model_cylinder);
-            
-        // }
+        {
+            glm::mat4 model_cylinder1;
+            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 0.3f, 0.0f));
+            ourShader.setMat4("model", model_cylinder1);
+            cylinder.render();
+        }
+
+        
+        // Bezier Surface
+        glm::mat4 model_bazier;
+		model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
+        model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
+		ourShader.setMat4("model", model_bazier);
+		bezierS.render();
 
         // render tree 1
         {
