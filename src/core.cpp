@@ -187,18 +187,22 @@ int core()
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // point light
-        for (int i = 0; i < Bomb::getBombNumber(); ++i)
-        {
-            string attribute = "pointLights";
-            attribute = attribute + "[" + to_string(i) + "].";
-            lightingShader.setVec3(attribute + "position", Bomb::getBombPosition(i));
-            lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
-            lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
-            lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
-            lightingShader.setFloat(attribute + "constant", 1.0f);
-            lightingShader.setFloat(attribute + "linear", 0.09f);
-            lightingShader.setFloat(attribute + "quadratic", 0.032f);
-        }
+        // set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
+        // for (int i = 0; i < Bomb::getBombNumber(); ++i)
+        // {
+        //     string attribute = "pointLights";
+        //     attribute = attribute + "[" + to_string(i) + "].";
+        //     lightingShader.setVec3(attribute + "position", (glm::vec3(0)));
+        //     // lightingShader.setVec3(attribute + "position", (*it)->getPosition());
+        //     lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
+        //     lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
+        //     lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
+        //     lightingShader.setFloat(attribute + "constant", 1.0f);
+        //     lightingShader.setFloat(attribute + "linear", 0.09f);
+        //     lightingShader.setFloat(attribute + "quadratic", 0.032f);
+
+        //     ++it;
+        // }
 
         // spotLight
         lightingShader.setVec3("spotLight.position", camera.Position);
@@ -222,9 +226,9 @@ int core()
             street.Draw(ourShader);
         }
 
-        water_texture.use();
-        lightSourceShader.use();
-        Bomb::draw(lightSourceShader);
+        // water_texture.use();
+        // lightSourceShader.use();
+        // Bomb::draw(lightSourceShader);
 
         lightingShader.use();
 		// render machine

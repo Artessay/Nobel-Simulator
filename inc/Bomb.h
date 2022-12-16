@@ -12,6 +12,7 @@
 class Bomb
 {
     public:
+        static std::set<Bomb*> bombSet;
 
         static int getBombNumber();
         static glm::vec3 getBombPosition(int index);
@@ -19,6 +20,11 @@ class Bomb
         static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront);
         
         static void draw(Shader& shader);
+
+        glm::vec3 getPosition() const
+        {
+            return position;
+        }
     
     protected:
         const static float bomb_velocity;
@@ -28,7 +34,6 @@ class Bomb
         Bomb(glm::vec3 bombPosition, glm::vec3 bombFront);
 
         static int bomb_number;    // bomb number
-        static std::set<Bomb*> bombSet;
         static glm::vec3 bombPositions[MAX_BOMBS];
 
         float start_time;
