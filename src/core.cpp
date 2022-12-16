@@ -137,7 +137,7 @@ int core()
     
 
     Texture water_texture("res/textures/blue.jpg");
-    // Texture leaf_texture("res/textures/leaf.jpg");
+    Texture leaf_texture("res/textures/leaf.jpg");
 
     // load models
     // -----------
@@ -193,9 +193,7 @@ int core()
         // basic config
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
-        // @todo
         lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
-        // lightingShader.setInt("NR_POINT_BOMBS", 0);
 
         // light source config
         
@@ -249,6 +247,24 @@ int core()
             // lightingShader.setMat4("model", model);
             street.Draw(ourShader);
         }
+        
+        // render cylinder
+        leaf_texture.use();
+        {
+            glm::mat4 model_cylinder1;
+            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 0.3f, 0.0f));
+            ourShader.setMat4("model", model_cylinder1);
+            cylinder.render();
+        }
+
+        // Bezier Surface
+        glm::mat4 model_bazier;
+		model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
+        model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
+		ourShader.setMat4("model", model_bazier);
+		bezierS.render();
 
         lightingShader.use();
 		// render machine
@@ -259,24 +275,6 @@ int core()
 			lightingShader.setMat4("model", model);
 			machine3.Draw(ourShader);
 		}
-
-        // render cylinder
-        {
-            glm::mat4 model_cylinder1;
-            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 0.3f, 0.0f));
-            ourShader.setMat4("model", model_cylinder1);
-            cylinder.render();
-        }
-
-        
-        // Bezier Surface
-        glm::mat4 model_bazier;
-		model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
-        model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
-		ourShader.setMat4("model", model_bazier);
-		bezierS.render();
 
         // render tree 1
         {
