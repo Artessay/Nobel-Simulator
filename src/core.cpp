@@ -16,9 +16,11 @@
 #include "Cylinder.h"
 #include "BezierSurface.h"
 #include "Camera.h"
+#include "Box.h"
 #include "CubeMap.h"
 #include "Texture.h"
 #include "callbacks.h"
+#include "Picture.h"
 
 #include <vector>
 #include <iostream>
@@ -138,6 +140,8 @@ int core()
 
     Texture water_texture("res/textures/blue.jpg");
     Texture leaf_texture("res/textures/leaf.jpg");
+    Texture bomb_texture("res/textures/bomb.png");
+    //Texture ruin_texture("res/textures/ruin.jpg");
 
     // load models
     // -----------
@@ -147,6 +151,8 @@ int core()
     // Model cadillac("./res/models/Cadillac.obj");
 
     Cylinder cylinder(2.0f, 1.0f);
+
+    Picture a;
 
     
     // render loop
@@ -257,6 +263,23 @@ int core()
             ourShader.setMat4("model", model_cylinder1);
             cylinder.render();
         }
+        // render cube
+        bomb_texture.use();
+        {
+            glm::mat4 model_bomb;
+            model_bomb = glm::translate(model_bomb, glm::vec3(3.0f, 3.3f, 3.0f));
+            ourShader.setMat4("model", model_bomb);
+            a.render();
+
+            // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            // ourShader.setMat4("model", model_bomb);
+            // a.render();
+
+            // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            // ourShader.setMat4("model", model_bomb);
+            // a.render();
+        }
+        
 
         // Bezier Surface
         glm::mat4 model_bazier;
@@ -303,9 +326,9 @@ int core()
         // cadillac.Draw(ourShader);
         
 
-        water_texture.use();
+        bomb_texture.use();
         lightSourceShader.use();
-        Bomb::draw(lightSourceShader);
+        Bomb::draw(lightSourceShader, bomb_texture);
         
         skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
