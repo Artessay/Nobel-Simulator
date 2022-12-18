@@ -50,7 +50,9 @@ bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront)
     }
 }
 
-void Bomb::draw(Shader& shader, Texture &bomb_texture)
+
+
+void Bomb::draw(Shader& shader)
 {
     set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
     while (it != Bomb::bombSet.end())
@@ -69,13 +71,12 @@ void Bomb::draw(Shader& shader, Texture &bomb_texture)
             bombSet.erase(pBomb);
             --bomb_number;
             glm::vec3 position = pBomb->position;
-            delete pBomb;
             pBomb->explode(shader, position);
+            delete pBomb;
             Bomb::boomed_bombSet.push_back(position);
-            
+            continue;
         }
 
-        bomb_texture.use();
         glm::mat4 model_bomb;
         model_bomb = glm::translate(model_bomb, pBomb->position);
         
@@ -84,8 +85,12 @@ void Bomb::draw(Shader& shader, Texture &bomb_texture)
         static Sphere sphere(0.25f);
         sphere.render();
     }
-Texture ruin_texture("res/textures/ruin.png");
-ruin_texture.use();
+    
+}
+
+void Bomb::drawRuin(Shader& shader)
+{
+    
     auto boomed_it = Bomb::boomed_bombSet.begin();
     while( boomed_it != Bomb::boomed_bombSet.end() ){
         Picture ruin;

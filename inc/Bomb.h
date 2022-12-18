@@ -25,9 +25,9 @@ class Bomb
         
         static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront);
         
-        static void draw(Shader& shader, Texture &bomb_texture);
+        static void draw(Shader& Shader);
 
-        
+        static void drawRuin(Shader& shader);
     
     protected:
         const static float bomb_velocity;

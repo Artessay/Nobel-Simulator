@@ -141,8 +141,8 @@ int core()
     Texture water_texture("res/textures/blue.jpg");
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
-    //Texture ruin_texture("res/textures/ruin.jpg");
-
+    Texture ruin_texture("res/textures/ruin.png");
+    
     // load models
     // -----------
     Model street("./res/models/street/street.obj"); 
@@ -326,9 +326,12 @@ int core()
         // cadillac.Draw(ourShader);
         
 
-        bomb_texture.use();
         lightSourceShader.use();
-        Bomb::draw(lightSourceShader, bomb_texture);
+        bomb_texture.use();
+        Bomb::draw(lightSourceShader);
+
+        ruin_texture.use();
+        Bomb::drawRuin(lightSourceShader);
         
         skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
