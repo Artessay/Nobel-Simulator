@@ -2,14 +2,18 @@
 #include <GLFW/glfw3.h>
 
 #include "Bomb.h"
+#include "Picture.h"
+#include <windows.h>
 
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+
 
 using namespace std;
 
 int Bomb::bomb_number = 0;
 std::set<Bomb*> Bomb::bombSet;
+std::vector <glm::vec3> Bomb::boomed_bombSet;
 
 const static float gravity = 0.098;
 const float Bomb::bomb_velocity = 2.5;
@@ -46,7 +50,7 @@ bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront)
     }
 }
 
-void Bomb::draw(Shader& shader)
+void Bomb::draw(Shader& shader, Texture &bomb_texture)
 {
     set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
     while (it != Bomb::bombSet.end())
@@ -64,10 +68,14 @@ void Bomb::draw(Shader& shader)
         {
             bombSet.erase(pBomb);
             --bomb_number;
-            pBomb->explode();
+            glm::vec3 position = pBomb->position;
             delete pBomb;
+            pBomb->explode(shader, position);
+            Bomb::boomed_bombSet.push_back(position);
+            
         }
 
+        bomb_texture.use();
         glm::mat4 model_bomb;
         model_bomb = glm::translate(model_bomb, pBomb->position);
         
@@ -75,6 +83,18 @@ void Bomb::draw(Shader& shader)
 
         static Sphere sphere(0.25f);
         sphere.render();
+    }
+Texture ruin_texture("res/textures/ruin.png");
+ruin_texture.use();
+    auto boomed_it = Bomb::boomed_bombSet.begin();
+    while( boomed_it != Bomb::boomed_bombSet.end() ){
+        Picture ruin;
+        glm::mat4 model_ruin;
+        model_ruin = glm::translate(model_ruin, glm::vec3((*boomed_it).x, (*boomed_it).y - 0.63f, (*boomed_it).z));
+        model_ruin = glm::rotate(model_ruin, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        shader.setMat4("model", model_ruin);
+        ruin.render();
+        boomed_it++;
     }
 }
 
@@ -90,7 +110,25 @@ Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront)
     ++ID_generator;
 }
 
-void Bomb::explode()
+void Bomb::explode(Shader& shader,glm::vec3 position)
 {
     cout << "BOMB!" << endl;
+    
+    Texture exp1_texture("res/textures/burst.png");
+    exp1_texture.use();
+    Picture smoke;
+
+        float delta_time = 0.5f;
+        glm::mat4 model_bomb;
+        model_bomb = glm::translate(model_bomb, position);
+        model_bomb = glm::scale(model_bomb, 
+                 glm::vec3(1.0f + delta_time, 1.0f + delta_time, 1.0f + delta_time));
+        shader.setMat4("model", model_bomb);
+        smoke.render();
+        
+        model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        shader.setMat4("model", model_bomb);
+        smoke.render();
+        
+        
 }

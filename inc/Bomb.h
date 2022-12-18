@@ -3,9 +3,10 @@
 
 #include "Shader.h"
 #include "Sphere.h"
-
+#include "Texture.h"
 #include <set>
 #include <glm/glm.hpp>
+#include <vector>
 
 #define MAX_BOMBS 10
 
@@ -15,16 +16,18 @@ class Bomb
 
         glm::vec3 getPosition() const { return position; }
 
-        void explode();
+        void explode(Shader& shader,glm::vec3 position);
 
-        
+        static std::vector <glm::vec3> boomed_bombSet;
         static std::set<Bomb*> bombSet;
 
         static int getBombNumber();
         
         static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront);
         
-        static void draw(Shader& shader);
+        static void draw(Shader& shader, Texture &bomb_texture);
+
+        
     
     protected:
         const static float bomb_velocity;
@@ -38,6 +41,7 @@ class Bomb
         glm::vec3 start_position;
         glm::vec3 position;
         glm::vec3 front;
+        
 
     private:
         unsigned int bomb_ID;
