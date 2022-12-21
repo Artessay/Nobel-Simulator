@@ -197,6 +197,7 @@ int core()
         lightSourceShader.setMat4("projection", projection);
 
         // basic config
+        lightingShader.use();
         lightingShader.setInt("material.diffuse", 0.5);
         lightingShader.setInt("material.specular", 0.5);
         lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());

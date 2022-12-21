@@ -79,10 +79,6 @@ void main()
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
-
-    // vec3 ambient = vec3(0.6, 0.6, 0.6);
-    // result += ambient * vec3(texture(material.diffuse, TexCoords));
-    // result += ambient * vec3(texture(material.specular, TexCoords));
     
     FragColor = vec4(result, 1.0);
 }
