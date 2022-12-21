@@ -34,6 +34,8 @@ class Bomb
 
         Bomb(glm::vec3 bombPosition, glm::vec3 bombFront);
 
+        virtual ~Bomb();
+
         static int bomb_number;    // bomb number
         // static glm::vec3 bombPositions[MAX_BOMBS];
 

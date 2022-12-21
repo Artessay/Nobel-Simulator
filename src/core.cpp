@@ -219,6 +219,7 @@ int core()
                 cout << "Bomb Program Error" << endl;
                 continue;
             }
+            
             string attribute = "pointLights";
             attribute = attribute + "[" + to_string(i) + "].";
             lightingShader.setVec3(attribute + "position", (*it)->getPosition());
@@ -245,17 +246,19 @@ int core()
         lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
 
         // render street
-        ourShader.use();
+        // 
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-            ourShader.setMat4("model", model);
-            // lightingShader.setMat4("model", model);
-            street.Draw(ourShader);
+            // ourShader.setMat4("model", model);
+            lightingShader.setMat4("model", model);
+            // street.Draw(ourShader);
+            street.Draw(lightingShader);
         }
         
         // render cylinder
+        ourShader.use();
         leaf_texture.use();
         {
             glm::mat4 model_cylinder1;

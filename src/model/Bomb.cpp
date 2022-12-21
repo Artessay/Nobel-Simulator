@@ -25,22 +25,11 @@ int Bomb::getBombNumber()
     return bomb_number;
 }
 
-// glm::vec3 Bomb::getBombPosition(int index)
-// {
-//     if (index < 0 || index >= bomb_number)
-//     {
-//         std::cout << "program error, debug needed" << std::endl;
-//         return glm::vec3(0);
-//     }
-
-//     return Bomb::bombPositions[index];
-// }
 
 bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront)
 {
     if (bomb_number < MAX_BOMBS)
     {
-        // Bomb::bombPositions[bomb_number++] = bombPosition;
         bombSet.insert(new Bomb(bombPosition, bombFront));
         return true;
     }
@@ -69,7 +58,7 @@ void Bomb::draw(Shader& shader)
         if (delta_time > 2.0f && pBomb->position.y == 0.25)
         {
             bombSet.erase(pBomb);
-            --bomb_number;
+            
             glm::vec3 position = pBomb->position;
             pBomb->explode(shader, position);
             delete pBomb;
@@ -113,6 +102,13 @@ Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront)
     
     bomb_ID = ID_generator;
     ++ID_generator;
+
+    ++bomb_number;
+}
+
+Bomb::~Bomb()
+{
+    --bomb_number;
 }
 
 void Bomb::explode(Shader& shader,glm::vec3 position)
@@ -134,6 +130,4 @@ void Bomb::explode(Shader& shader,glm::vec3 position)
         model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         shader.setMat4("model", model_bomb);
         smoke.render();
-        
-        
 }
