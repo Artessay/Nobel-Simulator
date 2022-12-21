@@ -1,7 +1,7 @@
 #include "Box.h"
 
 Box:: Box(const float& a, const float& b, const float& c){
-vertices = {
+    vertices = {
         // positions  x y z ? // normals           // texture coords
         -a, -b, -c,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
          a, -b, -c,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
