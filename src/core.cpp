@@ -115,6 +115,7 @@ int core()
     Shader skyShader("./res/shaders/skybox.vs", "./res/shaders/skybox.fs");
     Shader lightingShader("./res/shaders/light.vs", "./res/shaders/light.fs");
 	Shader lightSourceShader("./res/shaders/lightsource.vs", "./res/shaders/lightsource.fs");
+    // Shader transparentShader("./res/shaders/transparent.vs", "./res/shaders/transparent.fs");
 
     std::vector<std::string> skybox
 	{
@@ -187,6 +188,10 @@ int core()
         ourShader.use();
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
+
+        // transparentShader.use();
+        // transparentShader.setMat4("view", view);
+        // transparentShader.setMat4("projection", projection);
 
         lightingShader.use();
         lightingShader.setMat4("view", view);
@@ -267,6 +272,7 @@ int core()
             ourShader.setMat4("model", model_cylinder1);
             cylinder.render();
         }
+
         // render cube
         bomb_texture.use();
         {
@@ -334,7 +340,9 @@ int core()
         bomb_texture.use();
         Bomb::draw(lightSourceShader);
 
+        // transparentShader.use();
         ruin_texture.use();
+        // Bomb::drawRuin(transparentShader);
         Bomb::drawRuin(lightSourceShader);
         
         skyShader.use();
