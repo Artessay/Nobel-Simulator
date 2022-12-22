@@ -411,7 +411,7 @@ void processInput(GLFWwindow *window)
     static bool bomb_flip = true;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && bomb_flip == true)
     {
-        Bomb::placeBomb(camera.Position, camera.Ahead);
+        Bomb::placeBomb(camera.Position, camera.Front, camera.Ahead);
         // cout << "Bomb Number: " << bomb_number << endl;
         bomb_flip = false;
     }

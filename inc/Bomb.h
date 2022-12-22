@@ -23,7 +23,7 @@ class Bomb
 
         static int getBombNumber();
         
-        static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront);
+        static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead);
         
         static void draw(Shader& Shader);
 
@@ -32,7 +32,7 @@ class Bomb
     protected:
         const static float bomb_velocity;
 
-        Bomb(glm::vec3 bombPosition, glm::vec3 bombFront);
+        Bomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead);
 
         virtual ~Bomb();
 
@@ -43,6 +43,9 @@ class Bomb
         glm::vec3 start_position;
         glm::vec3 position;
         glm::vec3 front;
+        glm::vec3 ahead;
+        float start_angle_cos;
+        float start_angle_sin;
         
 
     private:

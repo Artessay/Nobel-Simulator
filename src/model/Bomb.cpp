@@ -15,7 +15,7 @@ int Bomb::bomb_number = 0;
 std::set<Bomb*> Bomb::bombSet;
 std::vector <glm::vec3> Bomb::boomed_bombSet;
 
-const static float gravity = 0.098;
+const static float gravity = 0.98;
 const float Bomb::bomb_velocity = 2.5;
 
 // glm::vec3 Bomb::bombPositions[MAX_BOMBS];
@@ -26,11 +26,11 @@ int Bomb::getBombNumber()
 }
 
 
-bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront)
+bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead)
 {
     if (bomb_number < MAX_BOMBS)
     {
-        bombSet.insert(new Bomb(bombPosition, bombFront));
+        bombSet.insert(new Bomb(bombPosition, bombFront, bombAhead));
         return true;
     }
     else
@@ -48,14 +48,16 @@ void Bomb::draw(Shader& shader)
     {
         auto pBomb = *it; ++it;
         float delta_time = glfwGetTime() - pBomb->start_time;
-        pBomb->position = pBomb->start_position + delta_time * bomb_velocity * pBomb->front;
-        pBomb->position.y = pBomb->position.y - gravity * delta_time * delta_time;
+        
+        pBomb->position = pBomb->start_position + delta_time * bomb_velocity * pBomb->start_angle_cos * pBomb->ahead;
+        pBomb->position.y = pBomb->position.y + delta_time * bomb_velocity * pBomb->start_angle_sin - 0.5 * gravity * delta_time * delta_time;
+        
         if (pBomb->position.y < 0.25)
         {
             pBomb->position.y = 0.25;
         }
 
-        if (delta_time > 2.0f && pBomb->position.y == 0.25)
+        if (delta_time > 2.0f || pBomb->position.y == 0.25)
         {
             bombSet.erase(pBomb);
             
@@ -92,11 +94,12 @@ void Bomb::drawRuin(Shader& shader)
     }
 }
 
-Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront)
+Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead)
 :   start_time(static_cast<float>(glfwGetTime())), 
     start_position(bombPosition),
     position(bombPosition),
-    front(bombFront)
+    front(bombFront),
+    ahead(bombAhead)
 {
     static unsigned int ID_generator = 0;
     
@@ -104,6 +107,9 @@ Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront)
     ++ID_generator;
 
     ++bomb_number;
+    start_angle_cos = glm::dot(front, ahead) / sqrt(glm::dot(front, front) * glm::dot(ahead, ahead));
+    start_angle_sin = (1 - start_angle_cos * start_angle_cos) * 
+                    (front.y >= 0 ? 1 : -1);
 }
 
 Bomb::~Bomb()
