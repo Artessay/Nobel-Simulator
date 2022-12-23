@@ -6,7 +6,7 @@
 class Box: public Object
 {
     public:
-        Box(const float& a = 1.0f, const float& b = 1.0f, const float& c = 1.0f);
+        Box(const float& a = 0.5f, const float& b = 0.5f, const float& c = 0.5f);
         
         virtual void render();
 };

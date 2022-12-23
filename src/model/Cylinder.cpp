@@ -14,11 +14,11 @@ Cylinder::Cylinder(const float& R, const float& H, const unsigned int& divisor)
         const float zi = R * sinf(angle);
         
         vertices.push_back(xi);
-        vertices.push_back(0.0f);
+        vertices.push_back(0.0f - H/2.0f);
         vertices.push_back(zi);
         
         vertices.push_back(xi);
-        vertices.push_back(0.0f + H);
+        vertices.push_back(0.0f + H/2.0f);
         vertices.push_back(zi);
     }
     
@@ -29,7 +29,7 @@ Cylinder::Cylinder(const float& R, const float& H, const unsigned int& divisor)
         const float zi = R * sinf(angle);
         
         vertices.push_back(xi);
-        vertices.push_back(0.0f);
+        vertices.push_back(0.0f - H/2.0f);
         vertices.push_back(zi);
     }
 
@@ -40,7 +40,7 @@ Cylinder::Cylinder(const float& R, const float& H, const unsigned int& divisor)
         const float zi = R * sinf(angle);
         
         vertices.push_back(xi);
-        vertices.push_back(0.0f + H);
+        vertices.push_back(0.0f + H/2.0f);
         vertices.push_back(zi);
     }
 
