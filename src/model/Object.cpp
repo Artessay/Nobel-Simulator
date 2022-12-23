@@ -1,8 +1,11 @@
 #include "Object.h"
 
-Object::Object()
+Object::Object(glm::vec3 obj_pos, glm::vec3 obj_size, float rot_angle, glm::vec3 rot_axis)
 {
-    ;
+    position = obj_pos;
+    size = obj_size;
+    angle = rot_angle;
+    axis = rot_axis;
 }
 
 Object::~Object()

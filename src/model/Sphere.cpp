@@ -3,8 +3,11 @@
 
 static const float PI = 3.1415926;
 
-Sphere::Sphere(const float& r, int sectors)
-: radius(r)
+Sphere::Sphere(const float& r,
+    glm::vec3 obj_pos, glm::vec3 obj_size, float rot_angle, glm::vec3 rot_axis,
+    int sectors)
+: Object(obj_pos, obj_size, rot_angle, rot_axis),
+  radius(r)
 {
     // divisor
     int stacks = (sectors >> 1);

@@ -1,6 +1,9 @@
 #include "Box.h"
 
-Box:: Box(const float& a, const float& b, const float& c){
+Box:: Box(glm::vec3 obj_pos, glm::vec3 obj_size, float rot_angle, glm::vec3 rot_axis, 
+        const float& a, const float& b, const float& c)
+:Object(obj_pos, obj_size, rot_angle, rot_axis)
+{
     vertices = {
         // positions  x y z ? // normals           // texture coords
         -a, -b, -c,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
