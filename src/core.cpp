@@ -143,6 +143,7 @@ int core()
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
     Texture ruin_texture("res/textures/ruin.png");
+	Texture earth_texture("./res/textures/planets/earth.jpg");
     
     // load models
     // -----------
@@ -266,10 +267,25 @@ int core()
         }
         
         // explodable objects
+        //render sphere
+        earth_texture.use();
+        {
+            glm::mat4 model_sphere1;
+            model_sphere1 = glm::translate(model_sphere1, glm::vec3(-8.0f, 0.1f, 6.0f));
+            lightingShader.setMat4("model", model_sphere1);
+            sphere1.render();
+        }
+        //render box
+        {
+            glm::mat4 model_box1;
+            model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, 0.1f, 2.5f));
+            lightingShader.setMat4("model", model_box1);
+            box1.render();
+        }
         // render cylinder
+        leaf_texture.use();
         ourShader.use();
-        // leaf_texture.use();
-        bomb_texture.use();
         {
             glm::mat4 model_cylinder1;
             model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -282,21 +298,6 @@ int core()
             model_cylinder2 = glm::translate(model_cylinder2, glm::vec3(-5.0f, 0.1f, 3.3f));
             ourShader.setMat4("model", model_cylinder2);
             cylinder2.render();
-        }
-        //render sphere
-        {
-            glm::mat4 model_sphere1;
-            model_sphere1 = glm::translate(model_sphere1, glm::vec3(-8.0f, 0.1f, 6.0f));
-            ourShader.setMat4("model", model_sphere1);
-            sphere1.render();
-        }
-        //render box
-        {
-            glm::mat4 model_box1;
-            model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, 0.1f, 2.5f));
-            ourShader.setMat4("model", model_box1);
-            box1.render();
         }
 
         // render cube
@@ -337,12 +338,13 @@ int core()
 			machine3.Draw(ourShader);
 		}
 
+        ourShader.use();
         // render tree 1
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(25.0f, -0.5f, 10.0f));
             model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-            lightingShader.setMat4("model", model);
+            ourShader.setMat4("model", model);
             tree.Draw(ourShader);
         }
         
@@ -351,17 +353,9 @@ int core()
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(30.0f, -0.5f, 10.0f));
             model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-            lightingShader.setMat4("model", model);
+            ourShader.setMat4("model", model);
             tree.Draw(ourShader);
         }     
-
-        // // rencer car
-        // glm::mat4 cadillac_matrix = glm::mat4(1.0f);
-        // cadillac_matrix = glm::translate(cadillac_matrix, glm::vec3(1.0f, 0.4f, -5.0f)); // translate it down so it's at the center of the scene
-        // cadillac_matrix = glm::scale(cadillac_matrix, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-        // ourShader.setMat4("model", cadillac_matrix);
-        // water_texture.use();
-        // cadillac.Draw(ourShader);
         
 
         lightSourceShader.use();
