@@ -52,12 +52,13 @@ void Bomb::draw(Shader& shader)
         pBomb->position = pBomb->start_position + delta_time * bomb_velocity * pBomb->start_angle_cos * pBomb->ahead;
         pBomb->position.y = pBomb->position.y + delta_time * bomb_velocity * pBomb->start_angle_sin - 0.5 * gravity * delta_time * delta_time;
         
-        if (pBomb->position.y < 0.25)
+        if (pBomb->position.y < 0.15f)
         {
-            pBomb->position.y = 0.25;
+            pBomb->position.y = 0.15f;
         }
 
-        if (delta_time > 2.0f || pBomb->position.y == 0.25)
+        // if (delta_time > 2.0f || pBomb->position.y == 0.15)
+        if (pBomb->position.y == 0.15f)
         {
             bombSet.erase(pBomb);
             
@@ -73,7 +74,7 @@ void Bomb::draw(Shader& shader)
         
         shader.setMat4("model", model_bomb);
 
-        static Sphere sphere(0.25f);
+        static Sphere sphere(0.15f);
         sphere.render();
     }
     
@@ -86,7 +87,7 @@ void Bomb::drawRuin(Shader& shader)
     while( boomed_it != Bomb::boomed_bombSet.end() ){
         Picture ruin;
         glm::mat4 model_ruin;
-        model_ruin = glm::translate(model_ruin, glm::vec3((*boomed_it).x, (*boomed_it).y - 0.63f, (*boomed_it).z));
+        model_ruin = glm::translate(model_ruin, glm::vec3((*boomed_it).x, (*boomed_it).y - 0.53f, (*boomed_it).z));
         model_ruin = glm::rotate(model_ruin, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shader.setMat4("model", model_ruin);
         ruin.render();

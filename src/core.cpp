@@ -130,13 +130,13 @@ int core()
     CubeMap sky_texture(skybox);
 
     //Bezier Surface
-    float controlPoints[] = {
-        -1.5, -1.5,  0.0,   -0.5, -1.5,  0.0,   0.5, -1.5,  0.0,   1.2, -1.5,  0.0,
-        -1.5, -0.5,  0.0,   -0.0, -0.5,  1.0,   1.0, -0.5,  2.5,   1.2, -0.5,  0.0,
-        -1.5,  0.5,  0.0,   -0.0,  0.5,  1.0,   1.0,  0.5,  2.5,   1.2,  0.5,  0.0, 
-        -1.5,  1.5,  0.0,   -0.5,  1.5,  0.0,   0.5,  1.5,  0.0,   1.2,  1.5,  0.0
-    };
-    BezierSurface bezierS(controlPoints);
+    // float controlPoints[] = {
+    //     -1.5, -1.5,  0.0,   -0.5, -1.5,  0.0,   0.5, -1.5,  0.0,   1.2, -1.5,  0.0,
+    //     -1.5, -0.5,  0.0,   -0.0, -0.5,  1.0,   1.0, -0.5,  2.5,   1.2, -0.5,  0.0,
+    //     -1.5,  0.5,  0.0,   -0.0,  0.5,  1.0,   1.0,  0.5,  2.5,   1.2,  0.5,  0.0, 
+    //     -1.5,  1.5,  0.0,   -0.5,  1.5,  0.0,   0.5,  1.5,  0.0,   1.2,  1.5,  0.0
+    // };
+    // BezierSurface bezierS(controlPoints);
     
 
     Texture water_texture("res/textures/blue.jpg");
@@ -151,9 +151,12 @@ int core()
     Model machine3("./res/models/machine1/m1.obj");
     // Model cadillac("./res/models/Cadillac.obj");
 
-    Cylinder cylinder(2.0f, 1.0f);
+    Cylinder cylinder1;
+    Cylinder cylinder2;
+    Sphere sphere1;
+    Box box1;
 
-    Picture a;
+    // Picture a;
 
     
     // render loop
@@ -262,24 +265,47 @@ int core()
             street.Draw(lightingShader);
         }
         
+        // explodable objects
         // render cylinder
         ourShader.use();
-        leaf_texture.use();
+        // leaf_texture.use();
+        bomb_texture.use();
         {
             glm::mat4 model_cylinder1;
             model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 0.3f, 0.0f));
+            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 1.3f, -0.1f));
             ourShader.setMat4("model", model_cylinder1);
-            cylinder.render();
+            cylinder1.render();
+        }
+        {
+            glm::mat4 model_cylinder2;
+            model_cylinder2 = glm::translate(model_cylinder2, glm::vec3(-5.0f, 0.1f, 3.3f));
+            ourShader.setMat4("model", model_cylinder2);
+            cylinder2.render();
+        }
+        //render sphere
+        {
+            glm::mat4 model_sphere1;
+            model_sphere1 = glm::translate(model_sphere1, glm::vec3(-8.0f, 0.1f, 6.0f));
+            ourShader.setMat4("model", model_sphere1);
+            sphere1.render();
+        }
+        //render box
+        {
+            glm::mat4 model_box1;
+            model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, 0.1f, 2.5f));
+            ourShader.setMat4("model", model_box1);
+            box1.render();
         }
 
         // render cube
         bomb_texture.use();
-        {
-            glm::mat4 model_bomb;
-            model_bomb = glm::translate(model_bomb, glm::vec3(3.0f, 3.3f, 3.0f));
-            ourShader.setMat4("model", model_bomb);
-            a.render();
+        // {
+            // glm::mat4 model_bomb;
+            // model_bomb = glm::translate(model_bomb, glm::vec3(3.0f, 3.3f, 3.0f));
+            // ourShader.setMat4("model", model_bomb);
+            // a.render();
 
             // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             // ourShader.setMat4("model", model_bomb);
@@ -288,16 +314,18 @@ int core()
             // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             // ourShader.setMat4("model", model_bomb);
             // a.render();
-        }
+        // }
         
 
         // Bezier Surface
-        glm::mat4 model_bazier;
-		model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
-        model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
-		ourShader.setMat4("model", model_bazier);
-		bezierS.render();
+        // {
+        //     glm::mat4 model_bazier;
+        //     model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //     model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
+        //     model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
+        //     ourShader.setMat4("model", model_bazier);
+        //     bezierS.render();
+        // }
 
         lightingShader.use();
 		// render machine

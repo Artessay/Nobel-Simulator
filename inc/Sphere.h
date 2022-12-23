@@ -6,7 +6,7 @@
 class Sphere: public Object
 {
     public:
-        Sphere(const float& r = 1.0f, int sectors = 36);
+        Sphere(const float& r = 0.5f, int sectors = 36);
 
 		virtual void render();
     
