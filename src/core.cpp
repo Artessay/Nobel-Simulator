@@ -21,12 +21,14 @@
 #include "Texture.h"
 #include "callbacks.h"
 #include "Picture.h"
+#include "ObjState.h"
 
 #include <vector>
 #include <iostream>
 
 // camera
 Camera camera(initial_position);
+vector<ObjState*> objects;
 
 // key
 static bool keys[1024];
@@ -49,7 +51,15 @@ static float lastFrame = 0.0f;	// time of last frame
 
 // bomb 
 
-
+// // objects
+// // pos  size    angle   axis
+// // pos[0] +right    pos[1] +up  pos[2] +back
+// Cylinder cylinder1(glm::vec3(-3.0f, 0.1f, -1.3f), glm::vec3(1.0f, 2.0f, 1.0f),
+//                     90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+// Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
+// Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
+// // r(default 0.5) position
+// Sphere sphere1(0.8f, glm::vec3(-2.0f, 0.4f, 5.0f));
 
 int core()
 {
@@ -152,10 +162,38 @@ int core()
     Model machine3("./res/models/machine1/m1.obj");
     // Model cadillac("./res/models/Cadillac.obj");
 
-    Cylinder cylinder1;
-    Cylinder cylinder2;
-    Sphere sphere1;
-    Box box1;
+    // explodable objects
+    // pos  size    angle   axis
+    // pos[0] +right    pos[1] +up  pos[2] +back
+    Cylinder cylinder1(glm::vec3(-3.0f, 0.1f, -1.3f), glm::vec3(1.0f, 2.0f, 1.0f),
+                       90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    ObjState* c1_state = new ObjState;
+    c1_state->setState(0,ObjType::cylinder,cylinder1.getPosition(),cylinder1.getSize(),
+                       cylinder1.getAngle(),cylinder1.getAxis());
+    objects.push_back(c1_state);
+    // cout << "num = " << objects.size() << endl;
+
+    Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
+    ObjState* c2_state = new ObjState;
+    c2_state->setState(1,ObjType::cylinder,cylinder2.getPosition(),cylinder2.getSize(),
+                       cylinder2.getAngle(),cylinder2.getAxis());
+    objects.push_back(c2_state);
+    // cout << "num = " << objects.size() << endl;
+
+    Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
+    ObjState* b1_state = new ObjState;
+    b1_state->setState(2,ObjType::box,box1.getPosition(),box1.getSize(),
+                       box1.getAngle(),box1.getAxis());
+    objects.push_back(b1_state);
+    // cout << "num = " << objects.size() << endl;
+
+    // r(default 0.5) position
+    Sphere sphere1(0.5f, glm::vec3(-2.0f, 0.4f, 5.0f), glm::vec3(1.6f, 1.6f, 1.6f));
+    ObjState* s1_state = new ObjState;
+    s1_state->setState(3,ObjType::sphere,sphere1.getPosition(),sphere1.getSize(),
+                       sphere1.getAngle(),sphere1.getAxis());
+    objects.push_back(s1_state);
+    // cout << "num = " << objects.size() << endl;
 
     // Picture a;
 
@@ -228,6 +266,7 @@ int core()
                 cout << "Bomb Program Error" << endl;
                 continue;
             }
+            (*it)->setObjState(objects);
             
             string attribute = "pointLights";
             attribute = attribute + "[" + to_string(i) + "].";
@@ -288,16 +327,36 @@ int core()
         ourShader.use();
         {
             glm::mat4 model_cylinder1;
-            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            model_cylinder1 = glm::translate(model_cylinder1, glm::vec3(-3.0f, 1.3f, -0.1f));
+            model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
+            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
+            model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
             ourShader.setMat4("model", model_cylinder1);
             cylinder1.render();
         }
         {
             glm::mat4 model_cylinder2;
-            model_cylinder2 = glm::translate(model_cylinder2, glm::vec3(-5.0f, 0.1f, 3.3f));
+            model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
+            model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
+            model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
             ourShader.setMat4("model", model_cylinder2);
             cylinder2.render();
+        }
+
+        //render sphere
+        {
+            glm::mat4 model_sphere1;
+            model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
+            ourShader.setMat4("model", model_sphere1);
+            sphere1.render();
+        }
+        //render box
+        {
+            glm::mat4 model_box1;
+            model_box1 = glm::translate(model_box1, box1.getPosition());
+            model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
+            model_box1 = glm::scale(model_box1, box1.getSize());
+            ourShader.setMat4("model", model_box1);
+            box1.render();
         }
 
         // render cube

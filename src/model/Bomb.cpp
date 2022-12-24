@@ -57,8 +57,10 @@ void Bomb::draw(Shader& shader)
             pBomb->position.y = 0.15f;
         }
 
+        // if(pBomb->ifCollide()){cout << "collide!" << endl;}
+
         // if (delta_time > 2.0f || pBomb->position.y == 0.15)
-        if (pBomb->position.y == 0.15f)
+        if (pBomb->position.y == 0.15f || pBomb->ifCollide())
         {
             bombSet.erase(pBomb);
             
@@ -120,6 +122,15 @@ Bomb::~Bomb()
 
 void Bomb::explode(Shader& shader,glm::vec3 position)
 {
+    // int num = objects.size();
+    // cout << num << endl;
+    // for(auto i = 0; i < objects.size(); i++){
+    //     cout << i << " type = " << objects[i]->getType();
+    //     cout << " posX = " << objects[i]->getPos().x;
+    //     cout << " sizeX = " << objects[i]->getSize().x << endl;
+    // }
+    // cout << position.x << " " << position.y << " " << position.z << endl;
+    // cout << "radius = " << Radius << endl;
     cout << "BOMB!" << endl;
     
     Texture exp1_texture("res/textures/burst.png");
@@ -137,4 +148,102 @@ void Bomb::explode(Shader& shader,glm::vec3 position)
         model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         shader.setMat4("model", model_bomb);
         smoke.render();
+}
+
+void Bomb::setObjState(vector<ObjState*> _objs)
+{
+    objects = _objs;
+    // for(auto i = 0; i < _objs.size(); i++){
+    //     objects.push_back(_objs[i]);
+    // }
+}
+
+bool Bomb::ifCollide()
+{
+    bool iscollide = false;
+    for(auto i = 0; i < objects.size(); i++){
+        switch (objects[i]->getType())
+        {
+        case ObjType::sphere :{
+            iscollide |= ifCollideSphere(objects[i]);
+            break;
+        }
+        case ObjType::cylinder :{
+            iscollide |= ifCollideCylinder(objects[i]);
+            break;
+        }
+        case ObjType::box :{
+            iscollide |= ifCollideBox(objects[i]);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return iscollide;
+}
+
+
+bool Bomb::ifCollideSphere(ObjState *sphere)
+{
+    bool iscollide = false;
+    float r = (sphere->getSize().x)/2.0f;
+    glm::vec3 diff = position - sphere->getPos();
+    // cout << diff.x << " " << diff.y << endl;
+    float distance = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+    // cout << "distance = " << distance << endl;
+    if(distance <= (r + Radius)*(r + Radius)){
+        iscollide = true;
+        cout << "collide with sphere" << endl;
+    }
+    return iscollide;
+}
+bool Bomb::ifCollideCylinder(ObjState *cylinder)
+{
+    bool iscollide = false;
+    float r = (cylinder->getSize().x)/2.0f;
+    if(cylinder->getAngle() == 0.0f){
+        float h = cylinder->getPos().y + (cylinder->getSize().y)/2.0f;
+        glm::vec3 diff = position - cylinder->getPos();
+        float dist_xz = diff.x * diff.x + diff.z * diff.z;
+        // cout << "dist_xz = " << dist_xz << endl;
+        if((position.y <= h && dist_xz <= (r + Radius)*(r + Radius))
+        || (position.y <= h + Radius && dist_xz <= r * r)
+        // (y-h)^2 + (sqrt(dist)-r)^2 <= R^2
+        || ((position.y - h) * (position.y - h) + (sqrt(dist_xz) - r) * (sqrt(dist_xz) - r) <= Radius * Radius)){
+            iscollide = true;
+            cout << "collide with cylinder" << endl;
+        }
+    }else{
+        float front = cylinder->getPos().z + (cylinder->getSize().y)/2.0f;
+        float back = cylinder->getPos().z - (cylinder->getSize().y)/2.0f;
+        cout << "front = " << front << " back = " << back << endl;
+        glm::vec3 diff = position - cylinder->getPos();
+        float dist_xy = diff.x * diff.x + diff.y * diff.y;
+        cout << "dist_xy = " << dist_xy << endl;
+        if((position.z <= front && position.z >= back && dist_xy <= (r + Radius)*(r + Radius))
+        || (position.z <= front + Radius && position.z >= back - Radius && dist_xy <= r * r)
+        || ((position.z - front) * (position.z - front) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)
+        || ((position.z - back) * (position.z - back) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)){
+            if(position.z <= front && position.z >= back && dist_xy <= (r + Radius)*(r + Radius)){
+                cout << "1 ";
+                cout << position.z << " ";}
+            if((position.z <= front + Radius && position.z >= back - Radius && dist_xy <= r * r)){
+                cout << "2 ";
+                cout << position.z << " ";
+            }
+            if(((position.z - front) * (position.z - front) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius))
+                cout << "3 ";
+            if(((position.z - back) * (position.z - back) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius))
+                cout << "4 ";
+            iscollide = true;
+            cout << "collide with cylinder" << endl;
+        }
+    }
+    return iscollide;
+}
+bool Bomb::ifCollideBox(ObjState *box)
+{
+    bool iscollide = false;
+    return iscollide;
 }

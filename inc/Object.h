@@ -6,15 +6,23 @@
 #include "ElementBuffer.h"
 
 #include <vector>
+#include <glm/glm.hpp>
 
 class Object
 {
 	public:
-		Object();
+		Object(
+			glm::vec3 obj_pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 obj_size = glm::vec3(1.0f, 1.0f, 1.0f),
+      float rot_angle = 0.0f, glm::vec3 rot_axis = glm::vec3(0.0f, 1.0f, 0.0f) //default rotate around z axis
+		);
 
 		virtual ~Object();
 
 		virtual void render();
+		glm::vec3 getPosition() { return position; }
+		glm::vec3 getSize() { return size; }
+		float getAngle() { return angle; }
+		glm::vec3 getAxis() { return axis; }
 		// virtual void resize();
 		// float* getVertices() const;
 		// unsigned int getSize() const;
@@ -35,6 +43,11 @@ class Object
 		VertexArray VAO;
 		VertexBuffer VBO;
 		ElementBuffer EBO;
+
+		glm::vec3 position;	//position of center
+		glm::vec3 size;			//scale
+		float angle;				//angle of rotation
+		glm::vec3 axis;			//axis of rotation
 };
 
 #endif

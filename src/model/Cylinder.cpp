@@ -3,7 +3,9 @@
 
 #define PI 3.1415926
 
-Cylinder::Cylinder(const float& R, const float& H, const unsigned int& divisor)
+Cylinder::Cylinder(glm::vec3 obj_pos, glm::vec3 obj_size, float rot_angle, glm::vec3 rot_axis, 
+    const float& R, const float& H, const unsigned int& divisor)
+:Object(obj_pos, obj_size, rot_angle, rot_axis)
 {
     // higher divisor make circle more round
 
