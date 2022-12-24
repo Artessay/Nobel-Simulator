@@ -67,7 +67,8 @@ void Bomb::draw(Shader& shader)
             glm::vec3 position = pBomb->position;
             pBomb->explode(shader, position);
             delete pBomb;
-            Bomb::boomed_bombSet.push_back(position);
+            if(pBomb->position.y < 0.18f)
+                Bomb::boomed_bombSet.push_back(position);
             continue;
         }
 
@@ -84,15 +85,17 @@ void Bomb::draw(Shader& shader)
 
 void Bomb::drawRuin(Shader& shader)
 {
-    
+    int sz = 0;//Bomb::boomed_bombSet.size();
     auto boomed_it = Bomb::boomed_bombSet.begin();
     while( boomed_it != Bomb::boomed_bombSet.end() ){
         Picture ruin;
         glm::mat4 model_ruin;
-        model_ruin = glm::translate(model_ruin, glm::vec3((*boomed_it).x, (*boomed_it).y - 0.53f, (*boomed_it).z));
+        
+        model_ruin = glm::translate(model_ruin, glm::vec3((*boomed_it).x, -0.4f + 0.001f*sz, (*boomed_it).z));
         model_ruin = glm::rotate(model_ruin, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shader.setMat4("model", model_ruin);
         ruin.render();
+        sz++;
         boomed_it++;
     }
 }
@@ -217,10 +220,10 @@ bool Bomb::ifCollideCylinder(ObjState *cylinder)
     }else{
         float front = cylinder->getPos().z + (cylinder->getSize().y)/2.0f;
         float back = cylinder->getPos().z - (cylinder->getSize().y)/2.0f;
-        cout << "front = " << front << " back = " << back << endl;
+        //cout << "front = " << front << " back = " << back << endl;
         glm::vec3 diff = position - cylinder->getPos();
         float dist_xy = diff.x * diff.x + diff.y * diff.y;
-        cout << "dist_xy = " << dist_xy << endl;
+        //cout << "dist_xy = " << dist_xy << endl;
         if((position.z <= front && position.z >= back && dist_xy <= (r + Radius)*(r + Radius))
         || (position.z <= front + Radius && position.z >= back - Radius && dist_xy <= r * r)
         || ((position.z - front) * (position.z - front) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)

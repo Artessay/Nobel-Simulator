@@ -49,17 +49,6 @@ static bool dragRotate = false;
 static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
 
-// bomb 
-
-// // objects
-// // pos  size    angle   axis
-// // pos[0] +right    pos[1] +up  pos[2] +back
-// Cylinder cylinder1(glm::vec3(-3.0f, 0.1f, -1.3f), glm::vec3(1.0f, 2.0f, 1.0f),
-//                     90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-// Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
-// Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
-// // r(default 0.5) position
-// Sphere sphere1(0.8f, glm::vec3(-2.0f, 0.4f, 5.0f));
 
 int core()
 {
@@ -139,20 +128,11 @@ int core()
     
     CubeMap sky_texture(skybox);
 
-    //Bezier Surface
-    // float controlPoints[] = {
-    //     -1.5, -1.5,  0.0,   -0.5, -1.5,  0.0,   0.5, -1.5,  0.0,   1.2, -1.5,  0.0,
-    //     -1.5, -0.5,  0.0,   -0.0, -0.5,  1.0,   1.0, -0.5,  2.5,   1.2, -0.5,  0.0,
-    //     -1.5,  0.5,  0.0,   -0.0,  0.5,  1.0,   1.0,  0.5,  2.5,   1.2,  0.5,  0.0, 
-    //     -1.5,  1.5,  0.0,   -0.5,  1.5,  0.0,   0.5,  1.5,  0.0,   1.2,  1.5,  0.0
-    // };
-    // BezierSurface bezierS(controlPoints);
-    
-
     Texture water_texture("res/textures/blue.jpg");
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
     Texture ruin_texture("res/textures/ruin.png");
+    Texture pass_texture("res/textures/pass.jpg");
 	Texture earth_texture("./res/textures/planets/earth.jpg");
     
     // load models
@@ -194,8 +174,6 @@ int core()
                        sphere1.getAngle(),sphere1.getAxis());
     objects.push_back(s1_state);
     // cout << "num = " << objects.size() << endl;
-
-    // Picture a;
 
     
     // render loop
@@ -297,7 +275,7 @@ int core()
         // 
         {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::translate(model, glm::vec3(30.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
             // ourShader.setMat4("model", model);
             lightingShader.setMat4("model", model);
@@ -315,10 +293,11 @@ int core()
             sphere1.render();
         }
         //render box
+        pass_texture.use();
         {
-            glm::mat4 model_box1;
-            model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, 0.1f, 2.5f));
+            glm::mat4 model_box1 = glm::mat4(1.0f);
+            //model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, -0.1f, 0.0f));
             lightingShader.setMat4("model", model_box1);
             box1.render();
         }
