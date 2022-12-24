@@ -140,7 +140,8 @@ int core()
     Model street("./res/models/street/street.obj"); 
     Model tree("./res/models/Tree/tree.obj");
     Model machine3("./res/models/machine1/m1.obj");
-    // Model cadillac("./res/models/Cadillac.obj");
+    
+    glm::vec3 explode_pos = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // explodable objects
     // pos  size    angle   axis
@@ -398,7 +399,7 @@ int core()
 
         lightSourceShader.use();
         bomb_texture.use();
-        Bomb::draw(lightSourceShader);
+        explode_pos = Bomb::draw(lightSourceShader);
 
         // transparentShader.use();
         ruin_texture.use();

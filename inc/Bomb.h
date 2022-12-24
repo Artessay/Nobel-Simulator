@@ -29,7 +29,7 @@ class Bomb
         
         static bool placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead);
         
-        static void draw(Shader& Shader);
+        static glm::vec3 draw(Shader& Shader);
 
         static void drawRuin(Shader& shader);
 

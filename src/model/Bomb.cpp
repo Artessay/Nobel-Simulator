@@ -41,8 +41,9 @@ bool Bomb::placeBomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bomb
 
 
 
-void Bomb::draw(Shader& shader)
+glm::vec3 Bomb::draw(Shader& shader)
 {
+    glm::vec3 ret = glm::vec3(0.0f,0.0f,0.0f);
     set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
     while (it != Bomb::bombSet.end())
     {
@@ -65,6 +66,7 @@ void Bomb::draw(Shader& shader)
             bombSet.erase(pBomb);
             
             glm::vec3 position = pBomb->position;
+            ret = pBomb->position;
             pBomb->explode(shader, position);
             delete pBomb;
             if(pBomb->position.y < 0.18f)
@@ -80,7 +82,7 @@ void Bomb::draw(Shader& shader)
         static Sphere sphere(0.15f);
         sphere.render();
     }
-    
+    return ret;
 }
 
 void Bomb::drawRuin(Shader& shader)
