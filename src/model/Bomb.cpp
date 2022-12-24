@@ -68,9 +68,10 @@ glm::vec3 Bomb::draw(Shader& shader)
             glm::vec3 position = pBomb->position;
             ret = pBomb->position;
             pBomb->explode(shader, position);
-            delete pBomb;
+            
             if(pBomb->position.y < 0.18f)
                 Bomb::boomed_bombSet.push_back(position);
+            delete pBomb;
             continue;
         }
 

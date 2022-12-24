@@ -14,7 +14,7 @@ private:
   float angle;				//angle of rotation
   glm::vec3 axis;			//axis of rotation
 public:
-  ObjState(){}
+  ObjState(){bomb_affected = 0;}
   ~ObjState(){}
   void setState(int _ind, ObjType _type, glm::vec3 _pos, 
                 glm::vec3 _size, float _an, glm::vec3 _ax)
@@ -31,6 +31,9 @@ public:
   glm::vec3 getSize(){return size;}
   float getAngle(){return angle;}
   glm::vec3 getAxis(){return axis;}
+
+  int bomb_affected;
+
 };
 
 

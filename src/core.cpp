@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 // camera
 Camera camera(initial_position);
@@ -132,7 +133,9 @@ int core()
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
     Texture ruin_texture("res/textures/ruin.png");
-    Texture pass_texture("res/textures/pass.jpg");
+    Texture wall_texture("res/textures/wall.png");
+    Texture wall_texture1("res/textures/wall1.jpg");
+    Texture wall_texture2("res/textures/wall2.jpg");
 	Texture earth_texture("./res/textures/planets/earth.jpg");
     
     // load models
@@ -166,7 +169,6 @@ int core()
     b1_state->setState(2,ObjType::box,box1.getPosition(),box1.getSize(),
                        box1.getAngle(),box1.getAxis());
     objects.push_back(b1_state);
-    // cout << "num = " << objects.size() << endl;
 
     // r(default 0.5) position
     Sphere sphere1(0.5f, glm::vec3(-2.0f, 0.4f, 5.0f), glm::vec3(1.6f, 1.6f, 1.6f));
@@ -294,14 +296,14 @@ int core()
             sphere1.render();
         }
         //render box
-        pass_texture.use();
-        {
-            glm::mat4 model_box1 = glm::mat4(1.0f);
-            //model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            model_box1 = glm::translate(model_box1, glm::vec3(3.0f, -0.1f, 0.0f));
-            lightingShader.setMat4("model", model_box1);
-            box1.render();
-        }
+        
+        // {
+        //     glm::mat4 model_box1 = glm::mat4(1.0f);
+        //     //model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //     model_box1 = glm::translate(model_box1, glm::vec3(3.0f, -0.1f, 0.0f));
+        //     lightingShader.setMat4("model", model_box1);
+        //     box1.render();
+        // }
         // render cylinder
         leaf_texture.use();
         ourShader.use();
@@ -330,6 +332,9 @@ int core()
             sphere1.render();
         }
         //render box
+        if(objects[2]->bomb_affected == 0)wall_texture.use();
+        else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
+        else {wall_texture2.use();}
         {
             glm::mat4 model_box1;
             model_box1 = glm::translate(model_box1, box1.getPosition());
@@ -400,6 +405,15 @@ int core()
         lightSourceShader.use();
         bomb_texture.use();
         explode_pos = Bomb::draw(lightSourceShader);
+
+        auto obj_it = objects.begin();
+        for(;obj_it != objects.end();obj_it++){
+            glm::vec3 obj_pos = (*obj_it)->getPos();
+            if(abs(obj_pos.x - explode_pos.x) + abs(obj_pos.y - explode_pos.y)
+                + abs(obj_pos.z - explode_pos.z) < 3.0f){
+                    (*obj_it)->bomb_affected ++;
+                }
+        }
 
         // transparentShader.use();
         ruin_texture.use();
