@@ -1,8 +1,11 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
+#include "ObjState.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <vector>
+#include <math.h>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement 
@@ -29,6 +32,7 @@ class Camera
 	public:
 		// Camera Attributes
 		glm::vec3 Position;
+		glm::vec3 Position_old;	// position of the last timestamp
 		glm::vec3 Front;
 		glm::vec3 Up;
 		glm::vec3 Ahead;
@@ -45,6 +49,7 @@ class Camera
 		float MouseSensitivity;
 		float Zoom;
 		bool FreeCamera;
+		std::vector<ObjState*> objects;
 
 		// Constructor with vectors
 		Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
@@ -64,11 +69,19 @@ class Camera
 		// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 		void ProcessMouseScroll(float yoffset);
 
+		void setObjState(std::vector<ObjState*> _objs);
+		bool ifCollide();
+		bool ifCollideSphere(ObjState *sphere);
+		bool ifCollideCylinder(ObjState *cylinder);
+		bool ifCollideBox(ObjState *box);
+
 	private:
 		// Calculates the front vector from the Camera's (updated) Eular Angles
 		void updateCameraVectors();
 
 		void physicalPositionCheck();
+		
+  	float Radius = 0.15f;
 };
 
 #endif

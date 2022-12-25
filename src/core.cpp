@@ -188,7 +188,7 @@ int core()
                        box2.getAngle(),box2.getAxis());
     objects.push_back(b2_state);
 
-    
+    camera.setObjState(objects);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
