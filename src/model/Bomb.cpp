@@ -231,17 +231,7 @@ bool Bomb::ifCollideCylinder(ObjState *cylinder)
         || (position.z <= front + Radius && position.z >= back - Radius && dist_xy <= r * r)
         || ((position.z - front) * (position.z - front) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)
         || ((position.z - back) * (position.z - back) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)){
-            if(position.z <= front && position.z >= back && dist_xy <= (r + Radius)*(r + Radius)){
-                cout << "1 ";
-                cout << position.z << " ";}
-            if((position.z <= front + Radius && position.z >= back - Radius && dist_xy <= r * r)){
-                cout << "2 ";
-                cout << position.z << " ";
-            }
-            if(((position.z - front) * (position.z - front) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius))
-                cout << "3 ";
-            if(((position.z - back) * (position.z - back) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius))
-                cout << "4 ";
+
             iscollide = true;
             cout << "collide with cylinder" << endl;
         }
@@ -251,5 +241,23 @@ bool Bomb::ifCollideCylinder(ObjState *cylinder)
 bool Bomb::ifCollideBox(ObjState *box)
 {
     bool iscollide = false;
+    float sin_th = sin(glm::radians(box->getAngle()));
+    float cos_th = cos(glm::radians(box->getAngle()));
+    float boxpos_rot_x = box->getPos().x * cos_th - box->getPos().z * sin_th;
+    float boxpos_rot_z = box->getPos().x * sin_th + box->getPos().z * cos_th;
+    float mypos_rot_x = position.x * cos_th - position.z * sin_th;
+    float mypos_rot_z = position.x * sin_th + position.z * cos_th;
+    float x_left = boxpos_rot_x - box->getSize().x * 0.5f - Radius;
+    float x_right = boxpos_rot_x + box->getSize().x * 0.5f + Radius;
+    float z_front = boxpos_rot_z - box->getSize().z * 0.5f - Radius;
+    float z_back = boxpos_rot_z + box->getSize().z * 0.5f + Radius;
+    float h = box->getPos().y + box->getSize().y * 0.5f + Radius;
+    
+    if(position.y <= h 
+    && mypos_rot_x >= x_left && mypos_rot_x <= x_right
+    && mypos_rot_z >= z_front && mypos_rot_z <= z_back){
+        iscollide = true;
+        cout << "collide with box" << endl;
+    }
     return iscollide;
 }

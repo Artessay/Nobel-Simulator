@@ -155,14 +155,12 @@ int core()
     c1_state->setState(0,ObjType::cylinder,cylinder1.getPosition(),cylinder1.getSize(),
                        cylinder1.getAngle(),cylinder1.getAxis());
     objects.push_back(c1_state);
-    // cout << "num = " << objects.size() << endl;
 
     Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
     ObjState* c2_state = new ObjState;
     c2_state->setState(1,ObjType::cylinder,cylinder2.getPosition(),cylinder2.getSize(),
                        cylinder2.getAngle(),cylinder2.getAxis());
     objects.push_back(c2_state);
-    // cout << "num = " << objects.size() << endl;
 
     Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
     ObjState* b1_state = new ObjState;
@@ -176,7 +174,19 @@ int core()
     s1_state->setState(3,ObjType::sphere,sphere1.getPosition(),sphere1.getSize(),
                        sphere1.getAngle(),sphere1.getAxis());
     objects.push_back(s1_state);
-    // cout << "num = " << objects.size() << endl;
+    
+    Sphere sphere2(0.5f, glm::vec3(-8.0f, 0.1f, 6.0f));
+    ObjState* s2_state = new ObjState;
+    s2_state->setState(4,ObjType::sphere,sphere2.getPosition(),sphere2.getSize(),
+                       sphere2.getAngle(),sphere2.getAxis());
+    objects.push_back(s2_state);
+
+    //machine, bbox type is box
+    Box box2(glm::vec3(1.0f, 0.2f, 0.0f), glm::vec3(1.2f, 1.2f, 0.8f));
+    ObjState* b2_state = new ObjState;
+    b2_state->setState(2,ObjType::box,box2.getPosition(),box2.getSize(),
+                       box2.getAngle(),box2.getAxis());
+    objects.push_back(b2_state);
 
     
     // render loop
@@ -290,10 +300,10 @@ int core()
         //render sphere
         earth_texture.use();
         {
-            glm::mat4 model_sphere1;
-            model_sphere1 = glm::translate(model_sphere1, glm::vec3(-8.0f, 0.1f, 6.0f));
-            lightingShader.setMat4("model", model_sphere1);
-            sphere1.render();
+            glm::mat4 model_sphere2;
+            model_sphere2 = glm::translate(model_sphere2, sphere2.getPosition());
+            lightingShader.setMat4("model", model_sphere2);
+            sphere2.render();
         }
         //render box
         
@@ -304,6 +314,7 @@ int core()
         //     lightingShader.setMat4("model", model_box1);
         //     box1.render();
         // }
+
         // render cylinder
         leaf_texture.use();
         ourShader.use();
@@ -328,6 +339,7 @@ int core()
         {
             glm::mat4 model_sphere1;
             model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
+            model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
             ourShader.setMat4("model", model_sphere1);
             sphere1.render();
         }
@@ -344,33 +356,16 @@ int core()
             box1.render();
         }
 
-        // render cube
-        bomb_texture.use();
+        // bomb_texture.use();
         // {
-            // glm::mat4 model_bomb;
-            // model_bomb = glm::translate(model_bomb, glm::vec3(3.0f, 3.3f, 3.0f));
-            // ourShader.setMat4("model", model_bomb);
-            // a.render();
-
-            // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            // ourShader.setMat4("model", model_bomb);
-            // a.render();
-
-            // model_bomb = glm::rotate(model_bomb,glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            // ourShader.setMat4("model", model_bomb);
-            // a.render();
+        //     glm::mat4 model_box2;
+        //     model_box2 = glm::translate(model_box2, box2.getPosition());
+        //     model_box2 = glm::rotate(model_box2, glm::radians(box2.getAngle()), box2.getAxis());
+        //     model_box2 = glm::scale(model_box2, box2.getSize());
+        //     ourShader.setMat4("model", model_box2);
+        //     box2.render();
         // }
         
-
-        // Bezier Surface
-        // {
-        //     glm::mat4 model_bazier;
-        //     model_bazier = glm::rotate(model_bazier, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        //     model_bazier = glm::translate(model_bazier, glm::vec3(-2.2f, -1.0f, 0.0f));
-        //     model_bazier = glm::scale(model_bazier, glm::vec3(0.8f, 0.5f, 1.0f));
-        //     ourShader.setMat4("model", model_bazier);
-        //     bezierS.render();
-        // }
 
         lightingShader.use();
 		// render machine

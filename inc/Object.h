@@ -13,7 +13,7 @@ class Object
 	public:
 		Object(
 			glm::vec3 obj_pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 obj_size = glm::vec3(1.0f, 1.0f, 1.0f),
-      float rot_angle = 0.0f, glm::vec3 rot_axis = glm::vec3(0.0f, 1.0f, 0.0f) //default rotate around z axis
+      float rot_angle = 0.0f, glm::vec3 rot_axis = glm::vec3(0.0f, 1.0f, 0.0f) //default rotate around y axis
 		);
 
 		virtual ~Object();
