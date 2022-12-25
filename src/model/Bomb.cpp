@@ -200,7 +200,7 @@ bool Bomb::ifCollideSphere(ObjState *sphere)
     // cout << "distance = " << distance << endl;
     if(distance <= (r + Radius)*(r + Radius)){
         iscollide = true;
-        cout << "collide with sphere" << endl;
+        cout << "bomb sphere" << endl;
     }
     return iscollide;
 }
@@ -218,7 +218,7 @@ bool Bomb::ifCollideCylinder(ObjState *cylinder)
         // (y-h)^2 + (sqrt(dist)-r)^2 <= R^2
         || ((position.y - h) * (position.y - h) + (sqrt(dist_xz) - r) * (sqrt(dist_xz) - r) <= Radius * Radius)){
             iscollide = true;
-            cout << "collide with cylinder" << endl;
+            cout << "bomb cylinder" << endl;
         }
     }else{
         float front = cylinder->getPos().z + (cylinder->getSize().y)/2.0f;
@@ -233,7 +233,7 @@ bool Bomb::ifCollideCylinder(ObjState *cylinder)
         || ((position.z - back) * (position.z - back) + (sqrt(dist_xy) - r) * (sqrt(dist_xy) - r) <= Radius * Radius)){
 
             iscollide = true;
-            cout << "collide with cylinder" << endl;
+            cout << "bomb cylinder" << endl;
         }
     }
     return iscollide;
@@ -257,7 +257,7 @@ bool Bomb::ifCollideBox(ObjState *box)
     && mypos_rot_x >= x_left && mypos_rot_x <= x_right
     && mypos_rot_z >= z_front && mypos_rot_z <= z_back){
         iscollide = true;
-        cout << "collide with box" << endl;
+        cout << "bomb box" << endl;
     }
     return iscollide;
 }
