@@ -317,13 +317,13 @@ int core()
 
         // render cylinder
         leaf_texture.use();
-        ourShader.use();
+        lightingShader.use();
         {
             glm::mat4 model_cylinder1;
             model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
             model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
             model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
-            ourShader.setMat4("model", model_cylinder1);
+            lightingShader.setMat4("model", model_cylinder1);
             cylinder1.render();
         }
         {
@@ -331,7 +331,7 @@ int core()
             model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
             model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
             model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
-            ourShader.setMat4("model", model_cylinder2);
+            lightingShader.setMat4("model", model_cylinder2);
             cylinder2.render();
         }
 
@@ -340,7 +340,7 @@ int core()
             glm::mat4 model_sphere1;
             model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
             model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
-            ourShader.setMat4("model", model_sphere1);
+            lightingShader.setMat4("model", model_sphere1);
             sphere1.render();
         }
         //render box
@@ -352,7 +352,7 @@ int core()
             model_box1 = glm::translate(model_box1, box1.getPosition());
             model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
             model_box1 = glm::scale(model_box1, box1.getSize());
-            ourShader.setMat4("model", model_box1);
+            lightingShader.setMat4("model", model_box1);
             box1.render();
         }
 
