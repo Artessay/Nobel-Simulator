@@ -149,7 +149,7 @@ int star()
 
     // lighting info
     // -------------
-    glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
+    glm::vec3 lightPos(0.0f, 10.0f, 10.0f);
 
     std::vector<std::string> skybox
 	{
@@ -248,7 +248,7 @@ int star()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // move light position over time
-        // lightPos.z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
+        lightPos.z = static_cast<float>(sin(glfwGetTime() * 0.1) * 10.0);
         
         // @shadow   
         // 0. create depth cubemap transformation matrices
