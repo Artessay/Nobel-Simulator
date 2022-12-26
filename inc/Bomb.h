@@ -58,6 +58,7 @@ class Bomb
         float start_angle_cos;
         float start_angle_sin;
         std::vector<ObjState*> objects;
+        int timer = -1;
         
 
     private:

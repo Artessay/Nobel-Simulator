@@ -17,6 +17,8 @@ std::vector <glm::vec3> Bomb::boomed_bombSet;
 
 const static float gravity = 0.98;
 const float Bomb::bomb_velocity = 2.5;
+glm::vec3 last_bomb_pos;
+
 
 // glm::vec3 Bomb::bombPositions[MAX_BOMBS];
 
@@ -50,28 +52,38 @@ glm::vec3 Bomb::draw(Shader& shader)
         auto pBomb = *it; ++it;
         float delta_time = glfwGetTime() - pBomb->start_time;
         
-        pBomb->position = pBomb->start_position + delta_time * bomb_velocity * pBomb->start_angle_cos * pBomb->ahead;
-        pBomb->position.y = pBomb->position.y + delta_time * bomb_velocity * pBomb->start_angle_sin - 0.5 * gravity * delta_time * delta_time;
-        
-        if (pBomb->position.y < 0.15f)
-        {
-            pBomb->position.y = 0.15f;
+        if(pBomb->timer < 0 ){
+            pBomb->position = pBomb->start_position + delta_time * bomb_velocity * pBomb->start_angle_cos * pBomb->ahead;
+            pBomb->position.y = pBomb->position.y + delta_time * bomb_velocity * pBomb->start_angle_sin - 0.5 * gravity * delta_time * delta_time;
+            
+            if (pBomb->position.y < 0.15f)
+            {
+                pBomb->position.y = 0.15f;
+            }
         }
-
         // if(pBomb->ifCollide()){cout << "collide!" << endl;}
+        if(pBomb->timer > 0 ){
+            pBomb->timer --;
+            pBomb->explode(shader, pBomb->position);
+            continue;
+        }
+        if(pBomb->timer == 0 ){
+            bombSet.erase(pBomb);
+            delete pBomb;
+            continue;
+        }
 
         // if (delta_time > 2.0f || pBomb->position.y == 0.15)
         if (pBomb->position.y == 0.15f || pBomb->ifCollide())
-        {
-            bombSet.erase(pBomb);
-            
+        {cout << "BOMB!" << endl;
+
             glm::vec3 position = pBomb->position;
             ret = pBomb->position;
+            last_bomb_pos = ret;
             pBomb->explode(shader, position);
-            
+            pBomb->timer = 12;
             if(pBomb->position.y < 0.18f)
                 Bomb::boomed_bombSet.push_back(position);
-            delete pBomb;
             continue;
         }
 
@@ -114,6 +126,7 @@ Bomb::Bomb(glm::vec3 bombPosition, glm::vec3 bombFront, glm::vec3 bombAhead)
     
     bomb_ID = ID_generator;
     ++ID_generator;
+    timer = -1;
 
     ++bomb_number;
     start_angle_cos = glm::dot(front, ahead) / sqrt(glm::dot(front, front) * glm::dot(ahead, ahead));
@@ -137,13 +150,13 @@ void Bomb::explode(Shader& shader,glm::vec3 position)
     // }
     // cout << position.x << " " << position.y << " " << position.z << endl;
     // cout << "radius = " << Radius << endl;
-    cout << "BOMB!" << endl;
+    
     
     Texture exp1_texture("res/textures/burst.png");
     exp1_texture.use();
     Picture smoke;
 
-        float delta_time = 0.5f;
+        float delta_time = 0.1f;
         glm::mat4 model_bomb;
         model_bomb = glm::translate(model_bomb, position);
         model_bomb = glm::scale(model_bomb, 

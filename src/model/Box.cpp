@@ -5,7 +5,7 @@ Box:: Box(glm::vec3 obj_pos, glm::vec3 obj_size, float rot_angle, glm::vec3 rot_
 :Object(obj_pos, obj_size, rot_angle, rot_axis)
 {
     vertices = {
-        // positions  x y z ? // normals           // texture coords
+        // positions // normals          // texture coords
         -a, -b, -c,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
          a, -b, -c,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
          a,  b, -c,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,

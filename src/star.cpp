@@ -160,7 +160,7 @@ int star()
 		"res/textures/skybox/background_front.png",
 		"res/textures/skybox/background_back.png",
 	};
-    
+      
     CubeMap sky_texture(skybox);
 
     Texture water_texture("res/textures/blue.jpg");
@@ -169,16 +169,24 @@ int star()
     Texture ruin_texture("res/textures/ruin.png");
     Texture wall_texture("res/textures/wall.png");
     Texture wall_texture1("res/textures/wall1.jpg");
-    Texture wall_texture2("res/textures/wall2.jpg");
-	Texture earth_texture("./res/textures/planets/earth.jpg");
-    
+    Texture wall_texture2("res/textures/wall2.jpg");  
+	Texture earth_texture("res/textures/planets/earth.jpg");
+    Texture box_texture("res/textures/box.png");
+    Texture box_texture1("res/textures/boxburnt.png");cout<<"KKKKKKK ";
+    Texture fire_texture("res/textures/fire.png");
+
     // load models
     // -----------
     Model street("./res/models/street/street.obj"); 
     Model tree("./res/models/Tree/tree.obj");
     Model machine3("./res/models/machine1/m1.obj");
-    
+    cout<<"aaaaa"<<endl;
     glm::vec3 explode_pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    int burning[7] = {-1};
+    burning[6]=-1;
+    Picture fire(2.0f, 2.0f);
+
+    
 
     // explodable objects
     // pos  size    angle   axis
@@ -188,41 +196,49 @@ int star()
     ObjState* c1_state = new ObjState;
     c1_state->setState(0,ObjType::cylinder,cylinder1.getPosition(),cylinder1.getSize(),
                        cylinder1.getAngle(),cylinder1.getAxis());
-    objects.push_back(c1_state);
+    objects.push_back(c1_state); //0
 
     Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
     ObjState* c2_state = new ObjState;
     c2_state->setState(1,ObjType::cylinder,cylinder2.getPosition(),cylinder2.getSize(),
                        cylinder2.getAngle(),cylinder2.getAxis());
-    objects.push_back(c2_state);
+    objects.push_back(c2_state); //1
 
     Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
     ObjState* b1_state = new ObjState;
     b1_state->setState(2,ObjType::box,box1.getPosition(),box1.getSize(),
                        box1.getAngle(),box1.getAxis());
-    objects.push_back(b1_state);
+    objects.push_back(b1_state); //2
 
     // r(default 0.5) position
     Sphere sphere1(0.5f, glm::vec3(-2.0f, 0.4f, 5.0f), glm::vec3(1.6f, 1.6f, 1.6f));
     ObjState* s1_state = new ObjState;
     s1_state->setState(3,ObjType::sphere,sphere1.getPosition(),sphere1.getSize(),
                        sphere1.getAngle(),sphere1.getAxis());
-    objects.push_back(s1_state);
+    objects.push_back(s1_state); //3
     
     Sphere sphere2(0.5f, glm::vec3(-8.0f, 0.1f, 6.0f));
     ObjState* s2_state = new ObjState;
     s2_state->setState(4,ObjType::sphere,sphere2.getPosition(),sphere2.getSize(),
                        sphere2.getAngle(),sphere2.getAxis());
-    objects.push_back(s2_state);
+    objects.push_back(s2_state); //4
 
     //machine, bbox type is box
     Box box2(glm::vec3(1.0f, 0.2f, 0.0f), glm::vec3(1.2f, 1.2f, 0.8f));
     ObjState* b2_state = new ObjState;
-    b2_state->setState(2,ObjType::box,box2.getPosition(),box2.getSize(),
+    b2_state->setState(5,ObjType::box,box2.getPosition(),box2.getSize(),
                        box2.getAngle(),box2.getAxis());
-    objects.push_back(b2_state);
+    objects.push_back(b2_state); //5
+
+    Box box3(glm::vec3(8.0f, 0.2f, 0.0f), glm::vec3(1.2f, 1.2f, 1.2f));
+    ObjState* b3_state = new ObjState;
+    b3_state->setState(6,ObjType::box,box3.getPosition(),box3.getSize(),
+                       box3.getAngle(),box3.getAxis());
+    objects.push_back(b3_state); //6 wood box
 
     camera.setObjState(objects);
+
+    cout<<"bbbbb"<<endl;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -335,6 +351,24 @@ int star()
                 shader_.setMat4("model", model);
                 machine3.Draw(shader_);
             }
+        fire_texture.use();
+                glm::mat4 model_fire = glm::mat4(1.0f);
+                model_fire = glm::translate(model_fire, objects[6]->getPos());
+                shader_.setMat4("model", model_fire);
+                fire.render();
+
+                box_texture.use();
+
+        if(objects[6]->bomb_affected == 0)box_texture.use();
+        else {
+            box_texture1.use();
+        }
+            {
+                glm::mat4 model_box3 = glm::mat4(1.0f);
+                model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
+                shader_.setMat4("model", model_box3);
+                box3.render();
+            }
         }
         
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -419,6 +453,17 @@ int star()
                 model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
                 shader_.setMat4("model", model);
                 machine3.Draw(shader_);
+            }
+
+            if(objects[6]->bomb_affected == 0)box_texture.use();
+        else {
+            box_texture1.use();
+        }
+            {
+                glm::mat4 model_box3 = glm::mat4(1.0f);
+                model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
+                shader_.setMat4("model", model_box3);
+                box3.render();
             }
         }
         
@@ -545,6 +590,18 @@ int star()
         ruin_texture.use();
         // Bomb::drawRuin(transparentShader);
         Bomb::drawRuin(lightSourceShader);
+
+        if(burning[6] != 0 && objects[6]->bomb_affected != 0){
+            
+            if(burning[6] == -1)burning[6] = 150;
+            else burning[6]--;
+            fire_texture.use();
+            glm::mat4 model_fire = glm::mat4(1.0f);
+            model_fire = glm::translate(model_fire, objects[6]->getPos());
+            lightSourceShader.setMat4("model", model_fire);
+            fire.render();
+        }
+        
         
         skyShader.use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
