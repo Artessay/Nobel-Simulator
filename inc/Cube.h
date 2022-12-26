@@ -7,6 +7,8 @@ class Cube: public Object
 {
     public:
         Cube();
+
+        virtual void bind();
         
         virtual void render();
 };

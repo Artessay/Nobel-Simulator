@@ -279,6 +279,8 @@ int star()
         // --------------------
         {
             Shader &shader_ = simpleDepthShader;
+            shader_.setInt("reverse_normals", 0);
+            // glEnable(GL_CULL_FACE);
             // render street
             {
                 glm::mat4 model = glm::mat4(1.0f);
@@ -362,6 +364,8 @@ int star()
         // --------------------
         {
             Shader &shader_ = shader;
+            shader_.setInt("reverse_normals", 0);
+            // glEnable(GL_CULL_FACE);
             // render street
             {
                 glm::mat4 model = glm::mat4(1.0f);
@@ -423,14 +427,15 @@ int star()
         ourShader.use();
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
+        
+        lightSourceShader.use();
+        lightSourceShader.setMat4("view", view);
+        lightSourceShader.setMat4("projection", projection);
 
         // lightingShader.use();
         // lightingShader.setMat4("view", view);
 		// lightingShader.setMat4("projection", projection);
 
-        // lightSourceShader.use();
-        // lightSourceShader.setMat4("view", view);
-        // lightSourceShader.setMat4("projection", projection);
 
         // // basic config
         // lightingShader.use();
