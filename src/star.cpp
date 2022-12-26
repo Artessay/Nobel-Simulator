@@ -51,7 +51,7 @@ static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
 
 
-int core()
+int star()
 {
     // glfw: initialize and configure
     // ------------------------------
@@ -113,9 +113,43 @@ int core()
     // -------------------------
     Shader ourShader("./res/shaders/modelShader.vs", "./res/shaders/modelShader.fs");
     Shader skyShader("./res/shaders/skybox.vs", "./res/shaders/skybox.fs");
-    Shader lightingShader("./res/shaders/light.vs", "./res/shaders/light.fs");
+    // Shader lightingShader("./res/shaders/light.vs", "./res/shaders/light.fs");
 	Shader lightSourceShader("./res/shaders/lightsource.vs", "./res/shaders/lightsource.fs");
-    // Shader transparentShader("./res/shaders/transparent.vs", "./res/shaders/transparent.fs");
+    Shader shader("res/shaders/point_shadows.vs", "res/shaders/point_shadows.fs");
+    Shader simpleDepthShader("res/shaders/point_shadows_depth.vs", "res/shaders/point_shadows_depth.fs", "res/shaders/point_shadows_depth.gs");
+
+    // configure depth map FBO
+    // -----------------------
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth cubemap texture
+    unsigned int depthCubemap;
+    glGenTextures(1, &depthCubemap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+    for (unsigned int i = 0; i < 6; ++i)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // shader configuration
+    // --------------------
+    shader.use();
+    shader.setInt("diffuseTexture", 0);
+    shader.setInt("depthMap", 1);
+
+    // lighting info
+    // -------------
+    glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
     std::vector<std::string> skybox
 	{
@@ -210,115 +244,247 @@ int core()
 
         // render
         // ------
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // move light position over time
+        // lightPos.z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
+        
+        // @shadow   
+        // 0. create depth cubemap transformation matrices
+        // -----------------------------------------------
+        float near_plane = 1.0f;
+        float far_plane = 25.0f;
+        glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
+        std::vector<glm::mat4> shadowTransforms;
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+        // 1. render scene to depth cubemap
+        // --------------------------------
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        simpleDepthShader.use();
+        for (unsigned int i = 0; i < 6; ++i)
+            simpleDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+        simpleDepthShader.setFloat("far_plane", far_plane);
+        simpleDepthShader.setVec3("lightPos", lightPos);
+        
+        // renders the 3D scene
+        // --------------------
+        {
+            Shader &shader_ = simpleDepthShader;
+            // render street
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(30.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+                model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+                // ourShader.setMat4("model", model);
+                shader_.setMat4("model", model);
+                // street.Draw(ourShader);
+                street.Draw(shader_);
+            }
+
+            // explodable objects
+            // --------------------
+            
+            //render sphere
+            earth_texture.use();
+            {
+                glm::mat4 model_sphere2;
+                model_sphere2 = glm::translate(model_sphere2, sphere2.getPosition());
+                shader_.setMat4("model", model_sphere2);
+                sphere2.render();
+            }
+
+            //render sphere
+            leaf_texture.use();
+            {
+                glm::mat4 model_sphere1;
+                model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
+                model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
+                shader_.setMat4("model", model_sphere1);
+                sphere1.render();
+            }
+
+            //render box
+            if(objects[2]->bomb_affected == 0) wall_texture.use();
+            else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+            {
+                glm::mat4 model_box1;
+                model_box1 = glm::translate(model_box1, box1.getPosition());
+                model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
+                model_box1 = glm::scale(model_box1, box1.getSize());
+                shader_.setMat4("model", model_box1);
+                box1.render();
+            }
+            
+            // render machine
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(1.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+                model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+                shader_.setMat4("model", model);
+                machine3.Draw(shader_);
+            }
+        }
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // 2. render scene as normal 
+        // -------------------------
+        glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
+
+        shader.use();
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
+        // set lighting uniforms
+        shader.setVec3("lightPos", lightPos);
+        shader.setVec3("viewPos", camera.Position);
+        shader.setFloat("far_plane", far_plane);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+        // renders the 3D scene
+        // --------------------
+        {
+            Shader &shader_ = shader;
+            // render street
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(30.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+                model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+                // ourShader.setMat4("model", model);
+                shader_.setMat4("model", model);
+                // street.Draw(ourShader);
+                street.Draw(shader_);
+            }
+
+            // explodable objects
+            // --------------------
+            
+            //render sphere
+            earth_texture.use();
+            {
+                glm::mat4 model_sphere2;
+                model_sphere2 = glm::translate(model_sphere2, sphere2.getPosition());
+                shader_.setMat4("model", model_sphere2);
+                sphere2.render();
+            }
+
+            //render sphere
+            leaf_texture.use();
+            {
+                glm::mat4 model_sphere1;
+                model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
+                model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
+                shader_.setMat4("model", model_sphere1);
+                sphere1.render();
+            }
+
+            //render box
+            if(objects[2]->bomb_affected == 0) wall_texture.use();
+            else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+            {
+                glm::mat4 model_box1;
+                model_box1 = glm::translate(model_box1, box1.getPosition());
+                model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
+                model_box1 = glm::scale(model_box1, box1.getSize());
+                shader_.setMat4("model", model_box1);
+                box1.render();
+            }
+            
+            // render machine
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(1.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+                model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+                shader_.setMat4("model", model);
+                machine3.Draw(shader_);
+            }
+        }
+        
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
-        // transparentShader.use();
-        // transparentShader.setMat4("view", view);
-        // transparentShader.setMat4("projection", projection);
+        // lightingShader.use();
+        // lightingShader.setMat4("view", view);
+		// lightingShader.setMat4("projection", projection);
 
-        lightingShader.use();
-        lightingShader.setMat4("view", view);
-		lightingShader.setMat4("projection", projection);
+        // lightSourceShader.use();
+        // lightSourceShader.setMat4("view", view);
+        // lightSourceShader.setMat4("projection", projection);
 
-        lightSourceShader.use();
-        lightSourceShader.setMat4("view", view);
-        lightSourceShader.setMat4("projection", projection);
+        // // basic config
+        // lightingShader.use();
+        // lightingShader.setInt("material.diffuse", 0.5);
+        // lightingShader.setInt("material.specular", 0.5);
+        // lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
 
-        // basic config
-        lightingShader.use();
-        lightingShader.setInt("material.diffuse", 0.5);
-        lightingShader.setInt("material.specular", 0.5);
-        lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
-
-        // light source config
-        lightingShader.setVec3("viewPos", camera.Position);
-        lightingShader.setFloat("material.shininess", 32.0f);
+        // // light source config
+        // lightingShader.setVec3("viewPos", camera.Position);
+        // lightingShader.setFloat("material.shininess", 32.0f);
         
-        // directional light
-        lightingShader.setVec3("dirLight.direction", -200.0f, -200.0f,  0.0f);
-        lightingShader.setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        // // directional light
+        // lightingShader.setVec3("dirLight.direction", -200.0f, -200.0f,  0.0f);
+        // lightingShader.setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f);
+        // lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        // lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
-        // point light
-        set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
-        for (int i = 0; i < Bomb::getBombNumber(); ++i)
-        {
-            if (*it == NULL)
-            {
-                cout << "Bomb Program Error" << endl;
-                continue;
-            }
-            (*it)->setObjState(objects);
-            
-            string attribute = "pointLights";
-            attribute = attribute + "[" + to_string(i) + "].";
-            lightingShader.setVec3(attribute + "position", (*it)->getPosition());
-            lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
-            lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
-            lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
-            lightingShader.setFloat(attribute + "constant", 1.0f);
-            lightingShader.setFloat(attribute + "linear", 0.09f);
-            lightingShader.setFloat(attribute + "quadratic", 0.032f);
-
-            ++it;
-        }
-
-        // spotLight
-        lightingShader.setVec3("spotLight.position", camera.Position);
-        lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("spotLight.constant", 1.0f);
-        lightingShader.setFloat("spotLight.linear", 0.09f);
-        lightingShader.setFloat("spotLight.quadratic", 0.032f);
-        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
-
-        // render street
-        // 
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(30.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
-            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-            // ourShader.setMat4("model", model);
-            lightingShader.setMat4("model", model);
-            // street.Draw(ourShader);
-            street.Draw(lightingShader);
-        }
-        
-        // explodable objects
-        //render sphere
-        earth_texture.use();
-        {
-            glm::mat4 model_sphere2;
-            model_sphere2 = glm::translate(model_sphere2, sphere2.getPosition());
-            lightingShader.setMat4("model", model_sphere2);
-            sphere2.render();
-        }
-        //render box
-        
+        // // point light
+        // set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
+        // for (int i = 0; i < Bomb::getBombNumber(); ++i)
         // {
-        //     glm::mat4 model_box1 = glm::mat4(1.0f);
-        //     //model_box1 = glm::rotate(model_box1, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //     model_box1 = glm::translate(model_box1, glm::vec3(3.0f, -0.1f, 0.0f));
-        //     lightingShader.setMat4("model", model_box1);
-        //     box1.render();
+        //     if (*it == NULL)
+        //     {
+        //         cout << "Bomb Program Error" << endl;
+        //         continue;
+        //     }
+        //     (*it)->setObjState(objects);
+            
+        //     string attribute = "pointLights";
+        //     attribute = attribute + "[" + to_string(i) + "].";
+        //     lightingShader.setVec3(attribute + "position", (*it)->getPosition());
+        //     lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
+        //     lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
+        //     lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
+        //     lightingShader.setFloat(attribute + "constant", 1.0f);
+        //     lightingShader.setFloat(attribute + "linear", 0.09f);
+        //     lightingShader.setFloat(attribute + "quadratic", 0.032f);
+
+        //     ++it;
         // }
 
+        // spotLight
+        // lightingShader.setVec3("spotLight.position", camera.Position);
+        // lightingShader.setVec3("spotLight.direction", camera.Front);
+        // lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        // lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        // lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        // lightingShader.setFloat("spotLight.constant", 1.0f);
+        // lightingShader.setFloat("spotLight.linear", 0.09f);
+        // lightingShader.setFloat("spotLight.quadratic", 0.032f);
+        // lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        // lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
+
         // render cylinder
-        leaf_texture.use();
         ourShader.use();
         {
             glm::mat4 model_cylinder1;
@@ -336,50 +502,6 @@ int core()
             ourShader.setMat4("model", model_cylinder2);
             cylinder2.render();
         }
-
-        //render sphere
-        lightingShader.use();
-        {
-            glm::mat4 model_sphere1;
-            model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
-            model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
-            lightingShader.setMat4("model", model_sphere1);
-            sphere1.render();
-        }
-
-        //render box
-        if(objects[2]->bomb_affected == 0)wall_texture.use();
-        else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
-        else {wall_texture2.use();}
-        {
-            glm::mat4 model_box1;
-            model_box1 = glm::translate(model_box1, box1.getPosition());
-            model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
-            model_box1 = glm::scale(model_box1, box1.getSize());
-            lightingShader.setMat4("model", model_box1);
-            box1.render();
-        }
-
-        // bomb_texture.use();
-        // {
-        //     glm::mat4 model_box2;
-        //     model_box2 = glm::translate(model_box2, box2.getPosition());
-        //     model_box2 = glm::rotate(model_box2, glm::radians(box2.getAngle()), box2.getAxis());
-        //     model_box2 = glm::scale(model_box2, box2.getSize());
-        //     ourShader.setMat4("model", model_box2);
-        //     box2.render();
-        // }
-        
-
-        // lightingShader.use();
-		// render machine
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(1.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
-			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-			lightingShader.setMat4("model", model);
-			machine3.Draw(lightingShader);
-		}
 
         ourShader.use();
         // render tree 1
@@ -436,6 +558,7 @@ int core()
     glfwTerminate();
     return 0;
 }
+
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
