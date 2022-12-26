@@ -316,7 +316,7 @@ int core()
         // }
 
         // render cylinder
-        leaf_texture.use();
+        bomb_texture.use();
         lightingShader.use();
         {
             glm::mat4 model_cylinder1;
@@ -336,6 +336,7 @@ int core()
         }
 
         //render sphere
+        leaf_texture.use();
         {
             glm::mat4 model_sphere1;
             model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
