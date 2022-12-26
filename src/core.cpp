@@ -338,13 +338,15 @@ int core()
         }
 
         //render sphere
+        lightingShader.use();
         {
             glm::mat4 model_sphere1;
             model_sphere1 = glm::translate(model_sphere1, sphere1.getPosition());
             model_sphere1 = glm::scale(model_sphere1, sphere1.getSize());
-            ourShader.setMat4("model", model_sphere1);
+            lightingShader.setMat4("model", model_sphere1);
             sphere1.render();
         }
+
         //render box
         if(objects[2]->bomb_affected == 0)wall_texture.use();
         else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
@@ -354,7 +356,7 @@ int core()
             model_box1 = glm::translate(model_box1, box1.getPosition());
             model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
             model_box1 = glm::scale(model_box1, box1.getSize());
-            ourShader.setMat4("model", model_box1);
+            lightingShader.setMat4("model", model_box1);
             box1.render();
         }
 
@@ -369,7 +371,7 @@ int core()
         // }
         
 
-        lightingShader.use();
+        // lightingShader.use();
 		// render machine
 		{
 			glm::mat4 model = glm::mat4(1.0f);
