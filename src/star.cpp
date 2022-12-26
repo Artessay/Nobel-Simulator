@@ -453,29 +453,29 @@ int star()
         // lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         // lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
-        // // point light
-        // set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
-        // for (int i = 0; i < Bomb::getBombNumber(); ++i)
-        // {
-        //     if (*it == NULL)
-        //     {
-        //         cout << "Bomb Program Error" << endl;
-        //         continue;
-        //     }
-        //     (*it)->setObjState(objects);
+        // point light
+        set<Bomb*>::const_iterator it = Bomb::bombSet.begin();
+        for (int i = 0; i < Bomb::getBombNumber(); ++i)
+        {
+            if (*it == NULL)
+            {
+                cout << "Bomb Program Error" << endl;
+                continue;
+            }
+            (*it)->setObjState(objects);
             
-        //     string attribute = "pointLights";
-        //     attribute = attribute + "[" + to_string(i) + "].";
-        //     lightingShader.setVec3(attribute + "position", (*it)->getPosition());
-        //     lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
-        //     lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
-        //     lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
-        //     lightingShader.setFloat(attribute + "constant", 1.0f);
-        //     lightingShader.setFloat(attribute + "linear", 0.09f);
-        //     lightingShader.setFloat(attribute + "quadratic", 0.032f);
+            // string attribute = "pointLights";
+            // attribute = attribute + "[" + to_string(i) + "].";
+            // lightingShader.setVec3(attribute + "position", (*it)->getPosition());
+            // lightingShader.setVec3(attribute + "ambient", 0.05f, 0.05f, 0.05f);
+            // lightingShader.setVec3(attribute + "diffuse", 0.8f, 0.8f, 0.8f);
+            // lightingShader.setVec3(attribute + "specular", 1.0f, 1.0f, 1.0f);
+            // lightingShader.setFloat(attribute + "constant", 1.0f);
+            // lightingShader.setFloat(attribute + "linear", 0.09f);
+            // lightingShader.setFloat(attribute + "quadratic", 0.032f);
 
-        //     ++it;
-        // }
+            ++it;
+        }
 
         // spotLight
         // lightingShader.setVec3("spotLight.position", camera.Position);
