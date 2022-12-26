@@ -212,6 +212,8 @@ int core()
         lightingShader.setInt("NR_POINT_BOMBS", Bomb::getBombNumber());
 
         // light source config
+        lightingShader.setVec3("viewPos", camera.Position);
+        lightingShader.setFloat("material.shininess", 32.0f);
         
         // directional light
         lightingShader.setVec3("dirLight.direction", -200.0f, -200.0f,  0.0f);
