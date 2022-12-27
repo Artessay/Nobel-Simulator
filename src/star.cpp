@@ -184,7 +184,7 @@ int star()
     glm::vec3 explode_pos = glm::vec3(0.0f, 0.0f, 0.0f);
     int burning[7] = {-1};
     burning[6]=-1;
-    Picture fire(2.0f, 2.0f);
+    Picture fire(0.5f, 0.5f);
 
     
 
@@ -359,7 +359,7 @@ int star()
 
                 box_texture.use();
 
-        if(objects[6]->bomb_affected == 0)box_texture.use();
+        if(burning[6] != 0)box_texture.use();
         else {
             box_texture1.use();
         }
@@ -455,7 +455,7 @@ int star()
                 machine3.Draw(shader_);
             }
 
-            if(objects[6]->bomb_affected == 0)box_texture.use();
+            if(burning[6] != 0)box_texture.use();
         else {
             box_texture1.use();
         }
@@ -593,11 +593,31 @@ int star()
 
         if(burning[6] != 0 && objects[6]->bomb_affected != 0){
             
-            if(burning[6] == -1)burning[6] = 150;
+            if(burning[6] == -1)burning[6] = 300;
             else burning[6]--;
             fire_texture.use();
             glm::mat4 model_fire = glm::mat4(1.0f);
             model_fire = glm::translate(model_fire, objects[6]->getPos());
+            model_fire = glm::translate(model_fire, glm::vec3(0.0f,0.0f,objects[6]->getSize().z/2 + 0.001f));
+            model_fire = glm::scale(model_fire, glm::vec3(1.0f + 0.005 * ((burning[6]/10)%2) ));
+            lightSourceShader.setMat4("model", model_fire);
+            fire.render();
+
+            model_fire = glm::translate(model_fire, glm::vec3(0.0f,0.0f,-objects[6]->getSize().z - 0.002f));
+            model_fire = glm::scale(model_fire, glm::vec3(1.0f + 0.005 * ((burning[6]/10)%2) ));
+            lightSourceShader.setMat4("model", model_fire);
+            fire.render();
+
+            model_fire = glm::mat4(1.0f);
+            model_fire = glm::translate(model_fire, objects[6]->getPos());
+            model_fire = glm::rotate(model_fire, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f) );
+            model_fire = glm::translate(model_fire, glm::vec3(0.0f,0.0f,objects[6]->getSize().z/2 + 0.001f));
+            model_fire = glm::scale(model_fire, glm::vec3(1.0f + 0.005 * ((burning[6]/10)%2) ));
+            lightSourceShader.setMat4("model", model_fire);
+            fire.render();
+
+            model_fire = glm::translate(model_fire, glm::vec3(0.0f,0.0f,-objects[6]->getSize().z - 0.002f));
+            model_fire = glm::scale(model_fire, glm::vec3(1.0f + 0.005 * ((burning[6]/10)%2) ));
             lightSourceShader.setMat4("model", model_fire);
             fire.render();
         }
