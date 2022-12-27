@@ -183,7 +183,7 @@ int star()
       
     CubeMap sky_texture(skybox);
 
-    Texture water_texture("res/textures/blue.jpg");
+    Texture water_texture("res/textures/water.png");
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
     Texture ruin_texture("res/textures/ruin.png");
@@ -558,6 +558,7 @@ int star()
 
         // render cylinder
         ourShader.use();
+        water_texture.use();
         {
             glm::mat4 model_cylinder1;
             model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
