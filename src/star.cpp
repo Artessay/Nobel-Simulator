@@ -415,17 +415,17 @@ int star()
 
                 box_texture.use();
 
-        // if(burning[6] != 0)box_texture.use();
-        // else {
-        //     box_texture1.use();
-        // }
-        //     {
-        //         glm::mat4 model_box3 = glm::mat4(1.0f);
-        //         model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
-        //         shader_.setMat4("model", model_box3);
-        //         box3.render();
-        //     }
-        }
+            if(burning[6] != 0)box_texture.use();
+            else {
+                box_texture1.use();
+            }
+                {
+                    glm::mat4 model_box3 = glm::mat4(1.0f);
+                    model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
+                    shader_.setMat4("model", model_box3);
+                    box3.render();
+                }
+        
             {
                 glm::mat4 model_box3 = glm::mat4(1.0f);
                 model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
