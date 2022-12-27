@@ -390,6 +390,24 @@ int star()
                 shader_.setMat4("model", model_box3);
                 box3.render();
             }
+
+            water_texture.use();
+            {
+                glm::mat4 model_cylinder1;
+                model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
+                model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
+                model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
+                shader.setMat4("model", model_cylinder1);
+                cylinder1.render();
+            }
+            {
+                glm::mat4 model_cylinder2;
+                model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
+                model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
+                model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
+                shader.setMat4("model", model_cylinder2);
+                cylinder2.render();
+            }
         }
         
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -478,14 +496,32 @@ int star()
             }
 
             if(burning[6] != 0)box_texture.use();
-        else {
-            box_texture1.use();
-        }
+            else {
+                box_texture1.use();
+            }
             {
                 glm::mat4 model_box3 = glm::mat4(1.0f);
                 model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
                 shader_.setMat4("model", model_box3);
                 box3.render();
+            }
+
+            water_texture.use();
+            {
+                glm::mat4 model_cylinder1;
+                model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
+                model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
+                model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
+                shader.setMat4("model", model_cylinder1);
+                cylinder1.render();
+            }
+            {
+                glm::mat4 model_cylinder2;
+                model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
+                model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
+                model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
+                shader.setMat4("model", model_cylinder2);
+                cylinder2.render();
             }
         }
         
@@ -557,24 +593,6 @@ int star()
         // lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
 
         // render cylinder
-        ourShader.use();
-        water_texture.use();
-        {
-            glm::mat4 model_cylinder1;
-            model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
-            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
-            model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
-            ourShader.setMat4("model", model_cylinder1);
-            cylinder1.render();
-        }
-        {
-            glm::mat4 model_cylinder2;
-            model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
-            model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
-            model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
-            ourShader.setMat4("model", model_cylinder2);
-            cylinder2.render();
-        }
 
         ourShader.use();
         // render tree 1
