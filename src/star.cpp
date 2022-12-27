@@ -23,9 +23,10 @@
 #include "Picture.h"
 #include "ObjState.h"
 
-#include <vector>
-#include <iostream>
 #include <cmath>
+#include <vector>
+#include <wtypes.h>
+#include <iostream>
 
 // camera
 Camera camera(initial_position);
@@ -50,9 +51,28 @@ static bool dragRotate = false;
 static float deltaTime = 0.0f;	// time between current frame and last frame
 static float lastFrame = 0.0f;	// time of last frame
 
+void GetDesktopResolution(float& horizontal, float& vertical)
+{
+	RECT desktop;
+	// Get a handle to the desktop window
+	const HWND hDesktop = GetDesktopWindow();
+	// Get the size of screen to the variable desktop
+	GetWindowRect(hDesktop, &desktop);
+	// The top left corner will have coordinates (0,0)
+	// and the bottom right corner will have coordinates
+	// (horizontal, vertical)
+	horizontal = desktop.right;
+	vertical = desktop.bottom;
+	
+}
 
 int star()
 {
+    float scr_width, scr_height;
+    GetDesktopResolution(scr_width, scr_height); // get resolution for create window
+    SCREEN_WIDTH = (int)scr_width;
+    SCREEN_HEIGHT = (int)scr_height;
+
     // glfw: initialize and configure
     // ------------------------------
     if (glfwInit() == GLFW_FALSE)
