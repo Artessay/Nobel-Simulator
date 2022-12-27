@@ -211,20 +211,19 @@ int star()
     // explodable objects
     // pos  size    angle   axis
     // pos[0] +right    pos[1] +up  pos[2] +back
-    Cylinder cylinder1(glm::vec3(-3.0f, 0.1f, -1.3f), glm::vec3(1.0f, 2.0f, 1.0f),
-                       90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    Box cylinder1(glm::vec3(-4.5f, 0.0f, -9.0f), glm::vec3(1.5f, 1.5f, 1.5f));
     ObjState* c1_state = new ObjState;
     c1_state->setState(0,ObjType::cylinder,cylinder1.getPosition(),cylinder1.getSize(),
                        cylinder1.getAngle(),cylinder1.getAxis());
     objects.push_back(c1_state); //0
 
-    Cylinder cylinder2(glm::vec3(-1.0f, 0.6f, -3.0f), glm::vec3(1.0f, 1.5f, 1.0f));
+    Box cylinder2(glm::vec3(-3.0f, 0.0f, -9.0f), glm::vec3(1.5f, 1.5f, 1.5f));
     ObjState* c2_state = new ObjState;
     c2_state->setState(1,ObjType::cylinder,cylinder2.getPosition(),cylinder2.getSize(),
                        cylinder2.getAngle(),cylinder2.getAxis());
     objects.push_back(c2_state); //1
 
-    Box box1(glm::vec3(3.0f, 0.6f, -4.0f), glm::vec3(1.8f, 1.5f, 2.3f), 30.0f);
+    Box box1(glm::vec3(-1.5f, 0.0f, -9.0f), glm::vec3(1.5f, 1.5f, 1.5f));
     ObjState* b1_state = new ObjState;
     b1_state->setState(2,ObjType::box,box1.getPosition(),box1.getSize(),
                        box1.getAngle(),box1.getAxis());
@@ -250,7 +249,7 @@ int star()
                        box2.getAngle(),box2.getAxis());
     objects.push_back(b2_state); //5
 
-    Box box3(glm::vec3(8.0f, 0.2f, 0.0f), glm::vec3(1.2f, 1.2f, 1.2f));
+    Box box3(glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(1.2f, 1.2f, 1.2f));
     ObjState* b3_state = new ObjState;
     b3_state->setState(6,ObjType::box,box3.getPosition(),box3.getSize(),
                        box3.getAngle(),box3.getAxis());
@@ -350,6 +349,42 @@ int star()
                 sphere1.render();
             }
 
+            if(objects[0]->bomb_affected == 0) wall_texture.use();
+            else if(objects[0]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+        
+{
+            glm::mat4 model_cylinder1;
+            model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
+            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
+            model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
+            shader_.setMat4("model", model_cylinder1);
+            cylinder1.render();
+        }
+        if(objects[1]->bomb_affected == 0) wall_texture.use();
+            else if(objects[1]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+        {
+            glm::mat4 model_cylinder2;
+            model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
+            model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
+            model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
+            shader_.setMat4("model", model_cylinder2);
+            cylinder2.render();
+        }
+            //render box
+            if(objects[2]->bomb_affected == 0) wall_texture.use();
+            else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+            {
+                glm::mat4 model_box1;
+                model_box1 = glm::translate(model_box1, box1.getPosition());
+                model_box1 = glm::rotate(model_box1, glm::radians(box1.getAngle()), box1.getAxis());
+                model_box1 = glm::scale(model_box1, box1.getSize());
+                shader_.setMat4("model", model_box1);
+                box1.render();
+            }
+
             //render box
             if(objects[2]->bomb_affected == 0) wall_texture.use();
             else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
@@ -379,16 +414,16 @@ int star()
 
                 box_texture.use();
 
-        if(burning[6] != 0)box_texture.use();
-        else {
-            box_texture1.use();
-        }
-            {
-                glm::mat4 model_box3 = glm::mat4(1.0f);
-                model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
-                shader_.setMat4("model", model_box3);
-                box3.render();
-            }
+        // if(burning[6] != 0)box_texture.use();
+        // else {
+        //     box_texture1.use();
+        // }
+        //     {
+        //         glm::mat4 model_box3 = glm::mat4(1.0f);
+        //         model_box3 = glm::translate(model_box3, objects[6]->getPos()); // translate it down so it's at the center of the scene
+        //         shader_.setMat4("model", model_box3);
+        //         box3.render();
+        //     }
         }
         
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -452,7 +487,29 @@ int star()
                 shader_.setMat4("model", model_sphere1);
                 sphere1.render();
             }
-
+            if(objects[0]->bomb_affected == 0) wall_texture.use();
+            else if(objects[0]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+        
+{
+            glm::mat4 model_cylinder1;
+            model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
+            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
+            model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
+            shader_.setMat4("model", model_cylinder1);
+            cylinder1.render();
+        }
+        if(objects[1]->bomb_affected == 0) wall_texture.use();
+            else if(objects[1]->bomb_affected == 1) {wall_texture1.use();}
+            else {wall_texture2.use();}
+        {
+            glm::mat4 model_cylinder2;
+            model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
+            model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
+            model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
+            shader_.setMat4("model", model_cylinder2);
+            cylinder2.render();
+        }
             //render box
             if(objects[2]->bomb_affected == 0) wall_texture.use();
             else if(objects[2]->bomb_affected == 1) {wall_texture1.use();}
@@ -555,23 +612,7 @@ int star()
         // lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f))); 
 
         // render cylinder
-        ourShader.use();
-        {
-            glm::mat4 model_cylinder1;
-            model_cylinder1 = glm::translate(model_cylinder1, cylinder1.getPosition());
-            model_cylinder1 = glm::rotate(model_cylinder1, glm::radians(cylinder1.getAngle()), cylinder1.getAxis());
-            model_cylinder1 = glm::scale(model_cylinder1, cylinder1.getSize());
-            ourShader.setMat4("model", model_cylinder1);
-            cylinder1.render();
-        }
-        {
-            glm::mat4 model_cylinder2;
-            model_cylinder2 = glm::translate(model_cylinder2, cylinder2.getPosition());
-            model_cylinder2 = glm::rotate(model_cylinder2, glm::radians(cylinder2.getAngle()), cylinder2.getAxis());
-            model_cylinder2 = glm::scale(model_cylinder2, cylinder2.getSize());
-            ourShader.setMat4("model", model_cylinder2);
-            cylinder2.render();
-        }
+        
 
         ourShader.use();
         // render tree 1
