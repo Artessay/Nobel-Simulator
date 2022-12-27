@@ -1,6 +1,14 @@
 #version 460 core
 out vec4 FragColor;
 
+struct light
+{
+    float ambient;
+};
+
+// // Max bomb number
+// #define MAX_BOMBS 10
+
 in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
@@ -12,6 +20,7 @@ uniform samplerCube depthMap;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform light pointLight;
 
 uniform float far_plane;
 
@@ -101,7 +110,7 @@ void main()
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(0.3);
     // ambient
-    vec3 ambient = 0.8 * lightColor;
+    vec3 ambient = pointLight.ambient * lightColor;
     // diffuse
     vec3 lightDir = normalize(lightPos - fs_in.FragPos);
     float diff = max(dot(lightDir, normal), 0.0);

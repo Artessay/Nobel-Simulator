@@ -285,6 +285,7 @@ int star()
 
         // move light position over time
         lightPos.z = static_cast<float>(sin(glfwGetTime() * 0.1) * 10.0);
+        float lightIntensity = static_cast<float>(sin(glfwGetTime() * 0.1) * 0.6 + 0.5);
         
         // @shadow   
         // 0. create depth cubemap transformation matrices
@@ -408,6 +409,7 @@ int star()
         // set lighting uniforms
         shader.setVec3("lightPos", lightPos);
         shader.setVec3("viewPos", camera.Position);
+        shader.setFloat("pointLight.ambient", lightIntensity);
         shader.setFloat("far_plane", far_plane);
         // glActiveTexture(GL_TEXTURE0);
         // glBindTexture(GL_TEXTURE_2D, woodTexture);
