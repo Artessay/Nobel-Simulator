@@ -130,6 +130,7 @@ int core()
     CubeMap sky_texture(skybox);
 
     Texture water_texture("res/textures/blue.jpg");
+    Texture blue_texture("res/textures/water.png");
     Texture leaf_texture("res/textures/leaf.jpg");
     Texture bomb_texture("res/textures/bomb.png");
     Texture ruin_texture("res/textures/ruin.png");
@@ -318,7 +319,7 @@ int core()
         // }
 
         // render cylinder
-        leaf_texture.use();
+        blue_texture.use();
         ourShader.use();
         {
             glm::mat4 model_cylinder1;
@@ -338,6 +339,7 @@ int core()
         }
 
         //render sphere
+        leaf_texture.use();
         lightingShader.use();
         {
             glm::mat4 model_sphere1;

@@ -9,8 +9,8 @@ int main()
     
     try
     {
-        star();
-        // core();
+        // star();
+        core();
     }
     catch(...)
     {
