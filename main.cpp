@@ -1,15 +1,12 @@
 #include "core.h"
 #include <iostream>
 
-int star();
-
 int main()
 {
     std::cout << "Hello ZJUer" << std::endl;
     
     try
     {
-        // star();
         core();
     }
     catch(...)

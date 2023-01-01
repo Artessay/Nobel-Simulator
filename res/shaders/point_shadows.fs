@@ -24,6 +24,7 @@ uniform light pointLight;
 
 uniform float far_plane;
 
+float ShadowCalculation(vec3 fragPos);
 
 // array of offset direction for sampling
 vec3 gridSamplingDisk[20] = vec3[]
@@ -34,38 +35,6 @@ vec3 gridSamplingDisk[20] = vec3[]
    vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
-
-float ShadowCalculation(vec3 fragPos)
-{
-    // get vector between fragment position and light position
-    vec3 fragToLight = fragPos - lightPos;
-    
-    // use the fragment to light vector to sample from the depth map    
-    // float closestDepth = texture(depthMap, fragToLight).r;
-    // it is currently in linear range between [0,1], let's re-transform it back to original depth value
-    // closestDepth *= far_plane;
-    // now get current linear depth as the length between the fragment and light position
-    float currentDepth = length(fragToLight);
-    
-    float shadow = 0.0;
-    float bias = 0.15;
-    int samples = 20;
-    float viewDistance = length(viewPos - fragPos);
-    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
-    for(int i = 0; i < samples; ++i)
-    {
-        float closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-        closestDepth *= far_plane;   // undo mapping [0;1]
-        if(currentDepth - bias > closestDepth)
-            shadow += 1.0;
-    }
-    shadow /= float(samples);
-        
-    // display closestDepth as debug (to visualize depth cubemap)
-    // FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
-        
-    return shadow;
-}
 
 // function prototypes
 // vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -128,6 +97,30 @@ void main()
     
     FragColor = vec4(lighting, 1.0);
 }
+
+float ShadowCalculation(vec3 fragPos)
+{
+    vec3 fragToLight = fragPos - lightPos;
+    
+    float currentDepth = length(fragToLight);
+    
+    float shadow = 0.0;
+    float bias = 0.15;
+    int samples = 20;
+    float viewDistance = length(viewPos - fragPos);
+    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0;
+    }
+    shadow /= float(samples);
+        
+    return shadow;
+}
+
 
 // // calculates the color when using a directional light.
 // vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
